@@ -1,0 +1,13 @@
+# User-specific / Editor files
+.idea/
+.vscode/
+*.suo
+*.user
+
+# Sub-project build and dependency folders
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+
+backend/bin/
+backend/obj/

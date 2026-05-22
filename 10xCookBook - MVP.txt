@@ -1,0 +1,19 @@
+## 10xCookBook - MVP
+
+### Główny problem
+Trudność w wyborze co zrobić na obiad. Często mam w lodówce produkty, które chciałabym wykorzystać na posiłek, żeby się nie marnowały, ale nie mam dobrego sposobu na wyszukanie przepisów, które je wykorzystują.
+
+### Najmniejszy zestaw funkcjonalności
+- Wyświetlenie przepisów, które są dopasowane do wyboru użytkownika (użytkownik wpisuje składniki, które ma, program prezentuje listę przepisów, które je wykorzystują)
+- Baza istniejących przepisów dostępnych dla wszystkich użytkowników
+- Manualne tworzenie przepisów dostępnych tylko dla tworzącego je użytkownika
+- Przeglądanie, edycja i usuwanie przepisów dostępnych dla danego użytkownika
+- Prosty system kont użytkowników do przechowywania przepisów użytkownika
+- System wyszukiwania przepisów najlepiej dopasowanych do wymogów użytkownika (listy produktów)
+
+### Co NIE wchodzi w zakres MVP
+- Polubienia przepisów
+- Systemu wyszukiwania przepisów na podstawie czegoś innego niż lista składników
+- Współdzielenie prywatnych przepisów między użytkownikami
+- Integracje z innymi platformami
+- Aplikacje mobilne (na początek tylko web)
