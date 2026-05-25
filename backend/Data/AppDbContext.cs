@@ -50,26 +50,26 @@ namespace _10x_cookbook_backend.Data
             // Seed Ingredients (20 znormalizowanych, popularnych składników - lowercase, trimmed)
             var ingredients = new List<Ingredient>
             {
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711001"), Name = "pomidor" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711002"), Name = "cebula" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711003"), Name = "czosnek" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711004"), Name = "makaron" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711005"), Name = "oliwa z oliwek" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711006"), Name = "bazylia" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711007"), Name = "pierś z kurczaka" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711008"), Name = "ryż" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711009"), Name = "marchewka" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711010"), Name = "ziemniaki" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711011"), Name = "sól" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711012"), Name = "pieprz" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711013"), Name = "masło" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711014"), Name = "mleko" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711015"), Name = "mąka pszenna" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711016"), Name = "jajko" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711017"), Name = "ser żółty" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711018"), Name = "papryka słodka" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711019"), Name = "cukier" },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711020"), Name = "cytryna" }
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711001"), Name = "pomidor", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711002"), Name = "cebula", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711003"), Name = "czosnek", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711004"), Name = "makaron", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711005"), Name = "oliwa z oliwek", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711006"), Name = "bazylia", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711007"), Name = "pierś z kurczaka", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711008"), Name = "ryż", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711009"), Name = "marchewka", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711010"), Name = "ziemniaki", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711011"), Name = "sól", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711012"), Name = "pieprz", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711013"), Name = "masło", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711014"), Name = "mleko", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711015"), Name = "mąka pszenna", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711016"), Name = "jajko", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711017"), Name = "ser żółty", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711018"), Name = "papryka słodka", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711019"), Name = "cukier", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711020"), Name = "cytryna", IsSpiceOrStaple = false }
             };
 
             modelBuilder.Entity<Ingredient>().HasData(ingredients);
