@@ -20,6 +20,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add UserService as a scoped service (to consume scoped DbContext)
 builder.Services.AddScoped<UserService>();
 
+// Add RecipeService as a scoped service
+builder.Services.AddScoped<RecipeService>();
+
 // Add CORS services
 builder.Services.AddCors(options =>
 {
@@ -97,6 +100,9 @@ app.MapGet("/api/weatherforecast", () =>
 
 // Map our authentication endpoints
 app.MapAuthEndpoints();
+
+// Map our recipe endpoints
+app.MapRecipeEndpoints();
 
 Console.WriteLine("10xCookBook API Started");
 app.Run();
