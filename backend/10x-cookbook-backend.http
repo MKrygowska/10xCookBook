@@ -1,6 +1,24 @@
 @10x_cookbook_backend_HostAddress = http://localhost:5174
 
-GET {{10x_cookbook_backend_HostAddress}}/weatherforecast/
+GET {{10x_cookbook_backend_HostAddress}}/api/weatherforecast
 Accept: application/json
 
 ###
+
+POST {{10x_cookbook_backend_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@10xcookbook.com",
+  "password": "password123"
+}
+
+###
+
+POST {{10x_cookbook_backend_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@10xcookbook.com",
+  "password": "password123"
+}
