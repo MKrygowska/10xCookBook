@@ -1,6 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using _10x_cookbook_backend.Data;
 using _10x_cookbook_backend.Endpoints;
 using _10x_cookbook_backend.Services;
 
@@ -11,8 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add UserService as a singleton
-builder.Services.AddSingleton<UserService>();
+// Add DbContext
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add UserService as a scoped service (to consume scoped DbContext)
+builder.Services.AddScoped<UserService>();
 
 // Add CORS services
 builder.Services.AddCors(options =>
