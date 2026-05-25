@@ -2,17 +2,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using _10x_cookbook_backend.Data;
 using _10x_cookbook_backend.Models;
 
 namespace _10x_cookbook_backend.Services
 {
     public class UserService
     {
-        private static readonly List<User> _users = new();
+        private readonly AppDbContext _dbContext;
         private readonly IConfiguration _configuration;
 
-        public UserService(IConfiguration configuration)
+        public UserService(AppDbContext dbContext, IConfiguration configuration)
         {
+            _dbContext = dbContext;
             _configuration = configuration;
         }
 
@@ -21,23 +23,30 @@ namespace _10x_cookbook_backend.Services
             errorMessage = string.Empty;
             email = email.Trim().ToLower();
 
-            lock (_users)
+            if (_dbContext.Users.Any(u => u.Email == email))
             {
-                if (_users.Any(u => u.Email == email))
-                {
-                    errorMessage = "Ten e-mail jest już zajęty.";
-                    return null;
-                }
+                errorMessage = "Ten e-mail jest już zajęty.";
+                return null;
+            }
 
-                var user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Email = email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
-                };
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
+            };
 
-                _users.Add(user);
+            try
+            {
+                _dbContext.Users.Add(user);
+                _dbContext.SaveChanges();
                 return user;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Wystąpił błąd podczas zapisywania użytkownika w bazie danych.";
+                Console.WriteLine($"Register error: {ex.Message}");
+                return null;
             }
         }
 
@@ -46,11 +55,7 @@ namespace _10x_cookbook_backend.Services
             errorMessage = string.Empty;
             email = email.Trim().ToLower();
 
-            User? user;
-            lock (_users)
-            {
-                user = _users.FirstOrDefault(u => u.Email == email);
-            }
+            var user = _dbContext.Users.FirstOrDefault(u => u.Email == email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
