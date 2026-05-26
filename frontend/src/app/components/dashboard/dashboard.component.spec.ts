@@ -99,6 +99,15 @@ describe('DashboardComponent', () => {
     expect(recipeServiceSpy.matchRecipes).not.toHaveBeenCalled();
   });
 
+  it('should not add duplicate ingredients with different casing', () => {
+    component.addIngredient('pomidor');
+    recipeServiceSpy.matchRecipes.calls.reset();
+    component.addIngredient('Pomidor');
+    expect(component.selectedIngredients.length).toBe(1);
+    expect(component.selectedIngredients[0]).toBe('pomidor');
+    expect(recipeServiceSpy.matchRecipes).not.toHaveBeenCalled();
+  });
+
   it('should remove ingredient when removeIngredient is called', () => {
     component.addIngredient('pomidor');
     component.addIngredient('cebula');

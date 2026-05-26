@@ -204,20 +204,20 @@ Fix the case-sensitivity inconsistency in `addIngredient()` so that duplicate de
 
 #### Automated
 
-- [x] 2.1 Frontend builds cleanly: `npm run build`
-- [x] 2.2 New unit tests pass: `npm run test -- --watch=false`
+- [x] 2.1 Frontend builds cleanly: `npm run build` — aaa0382
+- [x] 2.2 New unit tests pass: `npm run test -- --watch=false` — aaa0382
 
 #### Manual
 
-- [x] 2.3 Test output shows all dashboard specs passing
+- [x] 2.3 Test output shows all dashboard specs passing — aaa0382
 
 ### Phase 3: Case-Insensitive Tag Deduplication Fix
 
 #### Automated
 
-- [ ] 3.1 Frontend builds cleanly: `npm run build`
-- [ ] 3.2 All unit tests pass including dedup test: `npm run test -- --watch=false`
+- [x] 3.1 Frontend builds cleanly: `npm run build`
+- [x] 3.2 All unit tests pass including dedup test: `npm run test -- --watch=false`
 
 #### Manual
 
-- [ ] 3.3 Duplicate ingredient with different casing is rejected in the app
+- [x] 3.3 Duplicate ingredient with different casing is rejected in the app

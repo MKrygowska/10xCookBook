@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
   addIngredient(name: string): void {
     if (!name) return;
     const normalized = name.trim();
-    if (normalized && !this.selectedIngredients.includes(normalized)) {
+    if (normalized && !this.selectedIngredients.some(sel => sel.toLowerCase() === normalized.toLowerCase())) {
       this.selectedIngredients.push(normalized);
       this.searchQuery = '';
       this.showDropdown = false;
