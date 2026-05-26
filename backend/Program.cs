@@ -35,7 +35,19 @@ builder.Services.AddCors(options =>
 });
 
 // Add JWT Authentication
-var secret = builder.Configuration["JwtSettings:Secret"] ?? "SuperSecure10xCookBookSecretKey2026!ThatIsAtLeast32BytesLong";
+var secret = builder.Configuration["JwtSettings:Secret"];
+if (string.IsNullOrEmpty(secret) || secret == "YOUR_JWT_SECRET_PLACEHOLDER")
+{
+    var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    if (env == "Development")
+    {
+        secret = "SuperSecure10xCookBookSecretKey2026!ThatIsAtLeast32BytesLong";
+    }
+    else
+    {
+        throw new InvalidOperationException("JWT Secret is not configured. Please set the 'JwtSettings:Secret' configuration value or the 'JwtSettings__Secret' environment variable.");
+    }
+}
 var issuer = builder.Configuration["JwtSettings:Issuer"] ?? "10xCookBookAPI";
 var audience = builder.Configuration["JwtSettings:Audience"] ?? "10xCookBookClient";
 var key = Encoding.UTF8.GetBytes(secret);
