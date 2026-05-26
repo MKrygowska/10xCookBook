@@ -215,9 +215,9 @@ Fix the case-sensitivity inconsistency in `addIngredient()` so that duplicate de
 
 #### Automated
 
-- [x] 3.1 Frontend builds cleanly: `npm run build`
-- [x] 3.2 All unit tests pass including dedup test: `npm run test -- --watch=false`
+- [x] 3.1 Frontend builds cleanly: `npm run build` — ce84d2b
+- [x] 3.2 All unit tests pass including dedup test: `npm run test -- --watch=false` — ce84d2b
 
 #### Manual
 
-- [x] 3.3 Duplicate ingredient with different casing is rejected in the app
+- [x] 3.3 Duplicate ingredient with different casing is rejected in the app — ce84d2b

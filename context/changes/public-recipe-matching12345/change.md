@@ -1,7 +1,7 @@
 ---
 change_id: public-recipe-matching
 title: Wyszukiwanie przepisów po składnikach (publiczne)
-status: implementing
+status: implemented
 created: 2026-05-26
 updated: 2026-05-26
 archived_at: null
