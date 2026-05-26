@@ -26,17 +26,24 @@ namespace _10x_cookbook_backend.Services
                 .Select(i => i.Trim().ToLower())
                 .ToHashSet();
 
-            // Resolve matching ingredient IDs from names at the DB level
-            var matchingIngredientIds = await _dbContext.Ingredients
+            // Resolve matching ingredients from names at the DB level
+            var matchingIngredients = await _dbContext.Ingredients
                 .AsNoTracking()
                 .Where(i => normalizedUserIngredients.Contains(i.Name.ToLower()))
-                .Select(i => i.Id)
+                .Select(i => new { i.Id, i.IsSpiceOrStaple })
                 .ToListAsync();
+
+            var matchingIngredientIds = matchingIngredients.Select(mi => mi.Id).ToList();
+            var primaryIngredientIds = matchingIngredients.Where(mi => !mi.IsSpiceOrStaple).Select(mi => mi.Id).ToList();
+
+            // Fetch public recipes, pre-filtered to those containing at least one matched primary ingredient.
+            // If only spices were entered, fall back to matching any ingredient.
+            var filterIds = primaryIngredientIds.Any() ? primaryIngredientIds : matchingIngredientIds;
 
             // Fetch public recipes with ingredients eager loaded, pre-filtered by matching ingredient IDs
             var publicRecipes = await _dbContext.Recipes
                 .AsNoTracking()
-                .Where(r => r.IsPublic && r.RecipeIngredients.Any(ri => matchingIngredientIds.Contains(ri.IngredientId)))
+                .Where(r => r.IsPublic && r.RecipeIngredients.Any(ri => filterIds.Contains(ri.IngredientId)))
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .ToListAsync();

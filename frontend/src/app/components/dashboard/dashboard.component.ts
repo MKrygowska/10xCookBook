@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { RecipeService, Ingredient, RecipeMatch } from '../../services/recipe.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,7 +13,8 @@ import { RecipeService, Ingredient, RecipeMatch } from '../../services/recipe.se
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   userEmail: string | null = null;
   
   allIngredients: Ingredient[] = [];
@@ -39,7 +41,7 @@ export class DashboardComponent implements OnInit {
   }
 
   loadIngredients(): void {
-    this.recipeService.getIngredients().subscribe({
+    this.recipeService.getIngredients().pipe(takeUntil(this.destroy$)).subscribe({
       next: (ingredients) => {
         this.allIngredients = ingredients;
         this.updateAvailableIngredients();
@@ -132,7 +134,7 @@ export class DashboardComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.recipeService.matchRecipes(this.selectedIngredients).subscribe({
+    this.recipeService.matchRecipes(this.selectedIngredients).pipe(takeUntil(this.destroy$)).subscribe({
       next: (recipes) => {
         this.matchedRecipes = recipes;
         this.isLoading = false;
@@ -156,5 +158,10 @@ export class DashboardComponent implements OnInit {
   onLogout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
