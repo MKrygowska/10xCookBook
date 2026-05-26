@@ -11,3 +11,8 @@ frontend/.angular/cache/
 
 backend/bin/
 backend/obj/
+
+# All skills
+.agents
+.claude
+context
