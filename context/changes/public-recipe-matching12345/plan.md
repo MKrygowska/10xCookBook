@@ -193,23 +193,23 @@ Fix the case-sensitivity inconsistency in `addIngredient()` so that duplicate de
 
 #### Automated
 
-- [x] 1.1 Backend builds cleanly: `dotnet build`
-- [x] 1.2 Existing unit tests pass: `dotnet test`
+- [x] 1.1 Backend builds cleanly: `dotnet build` — 06b4965
+- [x] 1.2 Existing unit tests pass: `dotnet test` — 06b4965
 
 #### Manual
 
-- [x] 1.3 Recipe matching returns same results as before
+- [x] 1.3 Recipe matching returns same results as before — 06b4965
 
 ### Phase 2: Dashboard Component Unit Tests
 
 #### Automated
 
-- [ ] 2.1 Frontend builds cleanly: `npm run build`
-- [ ] 2.2 New unit tests pass: `npm run test -- --watch=false`
+- [x] 2.1 Frontend builds cleanly: `npm run build`
+- [x] 2.2 New unit tests pass: `npm run test -- --watch=false`
 
 #### Manual
 
-- [ ] 2.3 Test output shows all dashboard specs passing
+- [x] 2.3 Test output shows all dashboard specs passing
 
 ### Phase 3: Case-Insensitive Tag Deduplication Fix
 
