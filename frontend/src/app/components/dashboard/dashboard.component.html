@@ -1,0 +1,148 @@
+<div class="dashboard-wrapper">
+  <!-- Top Navigation Header -->
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <span class="brand-logo-small">10xCookBook</span>
+    </div>
+    <div class="user-controls">
+      <div class="user-badge">
+        Zalogowany jako: <strong>{{ userEmail }}</strong>
+      </div>
+      <button (click)="onLogout()" class="premium-btn btn-secondary btn-logout">
+        Wyloguj się
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <!-- Intro and Search Section -->
+    <section class="search-section premium-card">
+      <h1 class="welcome-title">Znajdź przepis na dziś!</h1>
+      <p class="dashboard-desc">
+        Wpisz lub wybierz składniki, które masz w swojej lodówce. Nasz inteligentny silnik dopasuje najlepsze przepisy, optymalizując zużycie przypraw i priorytetyzując składniki główne.
+      </p>
+
+      <!-- Tag-Input & Autocomplete Container -->
+      <div class="tag-search-container">
+        <label class="form-label">Twoje składniki:</label>
+        
+        <div class="tags-input-wrapper">
+          <!-- Selected Tags Chips List -->
+          <div class="selected-tags" *ngIf="selectedIngredients.length > 0">
+            <span *ngFor="let tag of selectedIngredients" class="tag-chip">
+              {{ tag }}
+              <button (click)="removeIngredient(tag)" class="btn-remove-tag" aria-label="Usuń składnik">&times;</button>
+            </span>
+          </div>
+
+          <!-- Text Input for Autocomplete -->
+          <div class="input-autocomplete-wrapper">
+            <input 
+              type="text" 
+              class="form-input search-input" 
+              placeholder="Wpisz składnik (np. pomidor, sól)..." 
+              [(ngModel)]="searchQuery"
+              (input)="onSearchQueryChange()"
+              (focus)="onInputFocus()"
+              (blur)="onInputBlur()"
+              (keydown.enter)="onInputEnter($event)"
+            />
+
+            <!-- Dropdown Podpowiedzi (Autocomplete Dropdown) -->
+            <div class="autocomplete-dropdown" *ngIf="showDropdown && filteredIngredients.length > 0">
+              <ul class="dropdown-list">
+                <li 
+                  *ngFor="let ing of filteredIngredients" 
+                  (mousedown)="addIngredient(ing.name)"
+                  class="dropdown-item"
+                >
+                  <span class="ingredient-name">{{ ing.name }}</span>
+                  <span *ngIf="ing.isSpiceOrStaple" class="badge-spice-tag">przyprawa / baza</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="spinner-glow"></div>
+      <p>Przeszukiwanie książki kucharskiej...</p>
+    </div>
+
+    <!-- Empty State (No matching recipes) -->
+    <div class="no-results-card premium-card" *ngIf="!isLoading && hasSearched && matchedRecipes.length === 0">
+      <div class="no-results-icon">🔍</div>
+      <h2>Brak pasujących przepisów</h2>
+      <p>
+        Niestety, żaden publiczny przepis w bazie nie zawiera wprowadzonych składników. Dodaj inne składniki podstawowe, takie jak <strong>pomidor</strong>, <strong>makaron</strong>, <strong>pierś z kurczaka</strong> lub <strong>ryż</strong>, aby zobaczyć dopasowania.
+      </p>
+    </div>
+
+    <!-- Results Section (Recipes Grid) -->
+    <section class="results-section" *ngIf="!isLoading && matchedRecipes.length > 0">
+      <h2 class="section-title">Dopasowane przepisy ({{ matchedRecipes.length }})</h2>
+      
+      <div class="recipes-grid">
+        <article 
+          *ngFor="let recipe of matchedRecipes" 
+          class="recipe-card premium-card"
+          [class.recipe-expanded]="expandedRecipeId === recipe.id"
+        >
+          <!-- Card Header: Title & Match Percentage -->
+          <header class="recipe-card-header">
+            <div class="recipe-meta">
+              <h3 class="recipe-title">{{ recipe.title }}</h3>
+            </div>
+            <div class="match-badge-wrapper">
+              <span class="match-badge" [ngClass]="{
+                'match-high': recipe.matchRate >= 80,
+                'match-medium': recipe.matchRate >= 50 && recipe.matchRate < 80,
+                'match-low': recipe.matchRate < 50
+              }">
+                {{ recipe.matchRate }}% dopasowania
+              </span>
+            </div>
+          </header>
+
+          <!-- Ingredients List -->
+          <div class="recipe-ingredients-summary">
+            <h4 class="ingredients-title">Składniki przepisu:</h4>
+            <div class="ingredients-pills-list">
+              <!-- Matched Ingredients (Green) -->
+              <span *ngFor="let item of recipe.matchedIngredients" class="pill pill-matched" title="Masz ten składnik">
+                <span class="pill-icon">✓</span> {{ item }}
+              </span>
+
+              <!-- Missing Ingredients (Red/Gray for primary, dark gray for spices) -->
+              <span 
+                *ngFor="let item of recipe.missingIngredients" 
+                class="pill" 
+                [ngClass]="item.isSpiceOrStaple ? 'pill-missing-spice' : 'pill-missing-primary'"
+                [title]="item.isSpiceOrStaple ? 'Brakująca przyprawa / produkt bazowy: ' + item.quantity : 'Brakujący składnik główny: ' + item.quantity"
+              >
+                <span class="pill-icon">✗</span> {{ item.name }} 
+                <span class="pill-qty">({{ item.quantity }})</span>
+                <span *ngIf="item.isSpiceOrStaple" class="pill-spice-label">baza</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Instructions Section (Accordion style) -->
+          <div class="recipe-instructions-wrapper">
+            <button (click)="toggleRecipeExpand(recipe.id)" class="btn-toggle-instructions">
+              {{ expandedRecipeId === recipe.id ? 'Ukryj instrukcję przygotowania' : 'Pokaż instrukcję przygotowania' }}
+              <span class="arrow-icon">{{ expandedRecipeId === recipe.id ? '▲' : '▼' }}</span>
+            </button>
+
+            <div class="instructions-content" *ngIf="expandedRecipeId === recipe.id">
+              <p class="instructions-text">{{ recipe.instructions }}</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>
