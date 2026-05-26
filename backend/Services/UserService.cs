@@ -68,7 +68,20 @@ namespace _10x_cookbook_backend.Services
 
         private string GenerateJwtToken(User user)
         {
-            var secret = _configuration["JwtSettings:Secret"] ?? "SuperSecure10xCookBookSecretKey2026!ThatIsAtLeast32BytesLong";
+            var secret = _configuration["JwtSettings:Secret"];
+            if (string.IsNullOrEmpty(secret) || secret == "YOUR_JWT_SECRET_PLACEHOLDER")
+            {
+                var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if (env == "Development")
+                {
+                    secret = "SuperSecure10xCookBookSecretKey2026!ThatIsAtLeast32BytesLong";
+                }
+                else
+                {
+                    throw new InvalidOperationException("JWT Secret is not configured. Please set the 'JwtSettings:Secret' configuration value or the 'JwtSettings__Secret' environment variable.");
+                }
+            }
+
             var issuer = _configuration["JwtSettings:Issuer"] ?? "10xCookBookAPI";
             var audience = _configuration["JwtSettings:Audience"] ?? "10xCookBookClient";
 
