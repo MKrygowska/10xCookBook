@@ -26,10 +26,17 @@ namespace _10x_cookbook_backend.Services
                 .Select(i => i.Trim().ToLower())
                 .ToHashSet();
 
-            // Fetch public recipes with ingredients eager loaded
+            // Resolve matching ingredient IDs from names at the DB level
+            var matchingIngredientIds = await _dbContext.Ingredients
+                .AsNoTracking()
+                .Where(i => normalizedUserIngredients.Contains(i.Name.ToLower()))
+                .Select(i => i.Id)
+                .ToListAsync();
+
+            // Fetch public recipes with ingredients eager loaded, pre-filtered by matching ingredient IDs
             var publicRecipes = await _dbContext.Recipes
                 .AsNoTracking()
-                .Where(r => r.IsPublic)
+                .Where(r => r.IsPublic && r.RecipeIngredients.Any(ri => matchingIngredientIds.Contains(ri.IngredientId)))
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .ToListAsync();
