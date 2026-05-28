@@ -1,1 +1,233 @@
-<p>my-recipes works!</p>
+<div class="dashboard-wrapper">
+  <!-- Top Navigation Header -->
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <span class="brand-logo-small">10xCookBook</span>
+    </div>
+    <div class="user-controls">
+      <div class="user-badge">
+        Zalogowany jako: <strong>{{ userEmail }}</strong>
+      </div>
+      <button routerLink="/dashboard" class="premium-btn btn-secondary btn-logout">
+        Powrót do pulpitu
+      </button>
+      <button (click)="onLogout()" class="premium-btn btn-secondary btn-logout">
+        Wyloguj się
+      </button>
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <!-- Section Title & Add Button -->
+    <div class="my-recipes-header">
+      <h1 class="welcome-title">Moje prywatne przepisy</h1>
+      <button (click)="openAddModal()" class="premium-btn btn-add-recipe">
+        <span class="btn-icon">+</span> Dodaj nowy przepis
+      </button>
+    </div>
+
+    <!-- Error Banner -->
+    <div class="alert-card" *ngIf="errorMessage">
+      <span class="alert-icon">⚠️</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="spinner-glow"></div>
+      <p>Wczytywanie Twoich przepisów...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="no-results-card premium-card" *ngIf="!isLoading && recipes.length === 0">
+      <div class="no-results-icon">🍽️</div>
+      <h2>Nie masz jeszcze żadnych przepisów</h2>
+      <p>
+        Twórz i zarządzaj własnymi, prywatnymi kompozycjami kulinarnymi. Kliknij przycisk powyżej, aby dodać swój pierwszy przepis prywatny!
+      </p>
+    </div>
+
+    <!-- Recipes Grid -->
+    <section class="results-section" *ngIf="!isLoading && recipes.length > 0">
+      <div class="recipes-grid">
+        <article *ngFor="let recipe of recipes" class="recipe-card premium-card">
+          <!-- Card Header -->
+          <header class="recipe-card-header">
+            <div class="recipe-meta">
+              <h3 class="recipe-title">{{ recipe.title }}</h3>
+            </div>
+            <div class="recipe-actions">
+              <button (click)="openEditModal(recipe)" class="action-btn btn-edit" title="Edytuj">✏️</button>
+              <button (click)="openDeleteModal(recipe)" class="action-btn btn-delete" title="Usuń">🗑️</button>
+            </div>
+          </header>
+
+          <!-- Ingredients List -->
+          <div class="recipe-ingredients-summary">
+            <h4 class="ingredients-title">Składniki:</h4>
+            <div class="ingredients-pills-list" *ngIf="recipe.ingredients && recipe.ingredients.length > 0">
+              <span *ngFor="let ing of recipe.ingredients" class="pill pill-matched">
+                {{ ing.name }} <span class="pill-qty">({{ ing.quantity }})</span>
+              </span>
+            </div>
+            <div *ngIf="!recipe.ingredients || recipe.ingredients.length === 0" class="no-ingredients-text">
+              Brak zdefiniowanych składników.
+            </div>
+          </div>
+
+          <!-- Instructions -->
+          <div class="recipe-instructions-wrapper">
+            <h4 class="ingredients-title">Instrukcja przygotowania:</h4>
+            <p class="instructions-text private-instructions-text">{{ recipe.instructions }}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add/Edit Recipe Modal -->
+  <div class="modal-backdrop" *ngIf="showFormModal">
+    <div class="modal-card premium-card">
+      <header class="modal-header">
+        <h2>{{ selectedRecipe ? 'Edytuj przepis' : 'Dodaj nowy przepis' }}</h2>
+        <button (click)="closeFormModal()" class="btn-close-modal">&times;</button>
+      </header>
+
+      <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()" class="recipe-form">
+        <!-- Title Input -->
+        <div class="form-group">
+          <label class="form-label" for="title">Tytuł przepisu</label>
+          <input 
+            type="text" 
+            id="title" 
+            class="form-input" 
+            placeholder="np. Aromatyczny Omlet z Warzywami"
+            formControlName="title"
+            [class.input-invalid]="isFieldInvalid('title')"
+          />
+          <span class="validation-error" *ngIf="isFieldInvalid('title')">
+            Tytuł jest wymagany (maksymalnie 100 znaków).
+          </span>
+        </div>
+
+        <!-- Ingredients Selection & Autocomplete -->
+        <div class="form-group">
+          <label class="form-label">Składniki przepisu</label>
+          
+          <!-- Ingredient Autocomplete Search -->
+          <div class="input-autocomplete-wrapper">
+            <input 
+              type="text" 
+              class="form-input search-input-modal" 
+              placeholder="Wyszukaj i dodaj składnik (np. jajka, masło)..." 
+              [(ngModel)]="ingredientSearchQuery"
+              [ngModelOptions]="{standalone: true}"
+              (input)="onIngredientSearchChange()"
+              (focus)="onIngredientFocus()"
+              (blur)="onIngredientBlur()"
+            />
+            
+            <!-- Autocomplete Dropdown -->
+            <div class="autocomplete-dropdown dropdown-modal" *ngIf="showIngredientDropdown && filteredIngredients.length > 0">
+              <ul class="dropdown-list">
+                <li 
+                  *ngFor="let ing of filteredIngredients" 
+                  (mousedown)="selectIngredient(ing)"
+                  class="dropdown-item"
+                >
+                  <span class="ingredient-name">{{ ing.name }}</span>
+                  <span *ngIf="ing.isSpiceOrStaple" class="badge-spice-tag">przyprawa / baza</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- FormArray Added Ingredients List -->
+          <div class="added-ingredients-container" formArrayName="ingredients">
+            <div 
+              *ngFor="let ctrl of ingredientsFormArray.controls; let i = index" 
+              [formGroupName]="i"
+              class="added-ingredient-row"
+            >
+              <span class="added-ingredient-name">
+                <span class="bullet">•</span> {{ ctrl.get('name')?.value }}
+              </span>
+              
+              <div class="added-ingredient-qty-wrapper">
+                <input 
+                  type="text" 
+                  class="form-input qty-input" 
+                  placeholder="Ilość (np. 3 szt., 100g)"
+                  formControlName="quantity"
+                />
+                <button 
+                  type="button" 
+                  (click)="removeIngredientFromForm(i)" 
+                  class="btn-remove-row"
+                  title="Usuń składnik"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+            
+            <div class="no-ingredients-hint" *ngIf="ingredientsFormArray.length === 0">
+              Wyszukaj składniki powyżej, aby dodać je do przepisu.
+            </div>
+          </div>
+        </div>
+
+        <!-- Instructions Textarea -->
+        <div class="form-group">
+          <label class="form-label" for="instructions">Instrukcja przygotowania</label>
+          <textarea 
+            id="instructions" 
+            class="form-input textarea-input" 
+            placeholder="Opisz krok po kroku jak przygotować potrawę..."
+            rows="5"
+            formControlName="instructions"
+            [class.input-invalid]="isFieldInvalid('instructions')"
+          ></textarea>
+          <span class="validation-error" *ngIf="isFieldInvalid('instructions')">
+            Instrukcja przygotowania jest wymagana.
+          </span>
+        </div>
+
+        <!-- Modal Actions -->
+        <footer class="modal-footer">
+          <button type="button" (click)="closeFormModal()" class="premium-btn btn-secondary" [disabled]="isSaving">
+            Anuluj
+          </button>
+          <button type="submit" class="premium-btn btn-save" [disabled]="recipeForm.invalid || isSaving">
+            {{ isSaving ? 'Zapisywanie...' : 'Zapisz przepis' }}
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Delete Confirmation Modal -->
+  <div class="modal-backdrop" *ngIf="showDeleteModal">
+    <div class="modal-card premium-card modal-delete">
+      <header class="modal-header">
+        <h2>Potwierdź usunięcie</h2>
+        <button (click)="closeDeleteModal()" class="btn-close-modal">&times;</button>
+      </header>
+      
+      <main class="modal-body">
+        <div class="warning-icon">⚠️</div>
+        <p>Czy na pewno chcesz usunąć przepis <strong>"{{ selectedRecipe?.title }}"</strong>?</p>
+        <p class="warning-desc">Tej operacji nie można cofnąć. Przepis zostanie bezpowrotnie skasowany.</p>
+      </main>
+
+      <footer class="modal-footer">
+        <button (click)="closeDeleteModal()" class="premium-btn btn-secondary">
+          Anuluj
+        </button>
+        <button (click)="onDeleteConfirm()" class="premium-btn btn-delete-confirm">
+          Usuń przepis
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
