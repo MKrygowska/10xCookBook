@@ -2,7 +2,7 @@ import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testin
 import { DashboardComponent } from './dashboard.component';
 import { AuthService } from '../../services/auth.service';
 import { RecipeService, Ingredient, RecipeMatch } from '../../services/recipe.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 describe('DashboardComponent', () => {
@@ -43,7 +43,8 @@ describe('DashboardComponent', () => {
       providers: [
         { provide: AuthService, useValue: authSpy },
         { provide: RecipeService, useValue: recipeSpy },
-        { provide: Router, useValue: rotSpy }
+        { provide: Router, useValue: rotSpy },
+        { provide: ActivatedRoute, useValue: {} }
       ]
     }).compileComponents();
 

@@ -8,6 +8,9 @@
       <div class="user-badge">
         Zalogowany jako: <strong>{{ userEmail }}</strong>
       </div>
+      <button routerLink="/my-recipes" class="premium-btn btn-secondary btn-logout">
+        Moje przepisy
+      </button>
       <button (click)="onLogout()" class="premium-btn btn-secondary btn-logout">
         Wyloguj się
       </button>
