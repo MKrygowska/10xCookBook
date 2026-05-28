@@ -150,5 +150,78 @@ namespace _10x_cookbook_backend.Tests
             Assert.Equal(100, tomatoSoup.MatchRate);
             Assert.Empty(tomatoSoup.MissingIngredients);
         }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldIncludePrivateRecipesOfCurrentUser()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            
+            // Seed ingredients
+            var kurczak = new Ingredient { Id = Guid.NewGuid(), Name = "kurczak", IsSpiceOrStaple = false };
+            dbContext.Ingredients.Add(kurczak);
+            
+            // Seed a public recipe
+            var publicRecipe = new Recipe { Id = Guid.NewGuid(), Title = "Publiczny Kurczak", IsPublic = true };
+            dbContext.Recipes.Add(publicRecipe);
+            dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = publicRecipe.Id, IngredientId = kurczak.Id, Quantity = "100g" });
+
+            // Seed a private recipe belonging to the current user
+            var userId = Guid.NewGuid();
+            var privateRecipe = new Recipe { Id = Guid.NewGuid(), Title = "Prywatny Kurczak", IsPublic = false, UserId = userId };
+            dbContext.Recipes.Add(privateRecipe);
+            dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = privateRecipe.Id, IngredientId = kurczak.Id, Quantity = "200g" });
+
+            dbContext.SaveChanges();
+            
+            var recipeService = new RecipeService(dbContext);
+
+            // Act
+            var results = await recipeService.MatchRecipesAsync(new List<string> { "kurczak" }, userId);
+
+            // Assert
+            Assert.Equal(2, results.Count);
+            var publicMatch = results.FirstOrDefault(r => r.Id == publicRecipe.Id);
+            var privateMatch = results.FirstOrDefault(r => r.Id == privateRecipe.Id);
+            Assert.NotNull(publicMatch);
+            Assert.True(publicMatch.IsPublic);
+            Assert.NotNull(privateMatch);
+            Assert.False(privateMatch.IsPublic);
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldExcludePrivateRecipesOfOtherUsers()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            
+            // Seed ingredients
+            var kurczak = new Ingredient { Id = Guid.NewGuid(), Name = "kurczak", IsSpiceOrStaple = false };
+            dbContext.Ingredients.Add(kurczak);
+            
+            // Seed a private recipe belonging to user A
+            var userAId = Guid.NewGuid();
+            var privateRecipeA = new Recipe { Id = Guid.NewGuid(), Title = "Kurczak Użytkownika A", IsPublic = false, UserId = userAId };
+            dbContext.Recipes.Add(privateRecipeA);
+            dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = privateRecipeA.Id, IngredientId = kurczak.Id, Quantity = "100g" });
+
+            // Seed a private recipe belonging to user B
+            var userBId = Guid.NewGuid();
+            var privateRecipeB = new Recipe { Id = Guid.NewGuid(), Title = "Kurczak Użytkownika B", IsPublic = false, UserId = userBId };
+            dbContext.Recipes.Add(privateRecipeB);
+            dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = privateRecipeB.Id, IngredientId = kurczak.Id, Quantity = "200g" });
+
+            dbContext.SaveChanges();
+            
+            var recipeService = new RecipeService(dbContext);
+
+            // Act: user A searches
+            var resultsForUserA = await recipeService.MatchRecipesAsync(new List<string> { "kurczak" }, userAId);
+
+            // Assert
+            Assert.Single(resultsForUserA);
+            Assert.Equal("Kurczak Użytkownika A", resultsForUserA[0].Title);
+            Assert.False(resultsForUserA[0].IsPublic);
+        }
     }
 }

@@ -25,14 +25,24 @@ namespace _10x_cookbook_backend.Endpoints
             })
             .RequireAuthorization();
 
-            app.MapPost("/api/recipes/match", async ([FromBody] MatchRecipesRequest request, RecipeService recipeService) =>
+            app.MapPost("/api/recipes/match", async (
+                ClaimsPrincipal user,
+                [FromBody] MatchRecipesRequest request, 
+                RecipeService recipeService) =>
             {
                 if (request == null || request.Ingredients == null)
                 {
                     return Results.BadRequest(new { error = "Lista składników jest wymagana." });
                 }
 
-                var matchedRecipes = await recipeService.MatchRecipesAsync(request.Ingredients);
+                var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                Guid? userId = null;
+                if (!string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var parsedId))
+                {
+                    userId = parsedId;
+                }
+
+                var matchedRecipes = await recipeService.MatchRecipesAsync(request.Ingredients, userId);
                 return Results.Ok(matchedRecipes);
             })
             .RequireAuthorization();
