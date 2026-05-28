@@ -23,6 +23,20 @@ export interface RecipeMatch {
   missingIngredients: MissingIngredient[];
 }
 
+export interface RecipeIngredientDto {
+  ingredientId: string;
+  name?: string; // Opcjonalna nazwa pobierana pomocniczo z autocomplete
+  quantity: string;
+}
+
+export interface Recipe {
+  id?: string;
+  title: string;
+  instructions: string;
+  isPublic: boolean;
+  ingredients: RecipeIngredientDto[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,5 +53,21 @@ export class RecipeService {
 
   matchRecipes(ingredients: string[]): Observable<RecipeMatch[]> {
     return this.http.post<RecipeMatch[]>(`${this.apiUrl}/recipes/match`, { ingredients });
+  }
+
+  getUserRecipes(): Observable<Recipe[]> {
+    return this.http.get<Recipe[]>(`${this.apiUrl}/recipes/my`);
+  }
+
+  createRecipe(recipe: Recipe): Observable<Recipe> {
+    return this.http.post<Recipe>(`${this.apiUrl}/recipes`, recipe);
+  }
+
+  updateRecipe(id: string, recipe: Recipe): Observable<Recipe> {
+    return this.http.put<Recipe>(`${this.apiUrl}/recipes/${id}`, recipe);
+  }
+
+  deleteRecipe(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/recipes/${id}`);
   }
 }
