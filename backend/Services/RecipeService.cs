@@ -13,7 +13,7 @@ namespace _10x_cookbook_backend.Services
             _dbContext = dbContext;
         }
 
-        public async Task<List<RecipeMatchResult>> MatchRecipesAsync(List<string> userIngredientNames)
+        public async Task<List<RecipeMatchResult>> MatchRecipesAsync(List<string> userIngredientNames, Guid? userId = null)
         {
             if (userIngredientNames == null)
             {
@@ -29,7 +29,7 @@ namespace _10x_cookbook_backend.Services
             // Resolve matching ingredients from names at the DB level
             var matchingIngredients = await _dbContext.Ingredients
                 .AsNoTracking()
-                .Where(i => normalizedUserIngredients.Contains(i.Name.ToLower()))
+                .Where(i => normalizedUserIngredients.Contains(i.Name))
                 .Select(i => new { i.Id, i.IsSpiceOrStaple })
                 .ToListAsync();
 
@@ -40,17 +40,17 @@ namespace _10x_cookbook_backend.Services
             // If only spices were entered, fall back to matching any ingredient.
             var filterIds = primaryIngredientIds.Any() ? primaryIngredientIds : matchingIngredientIds;
 
-            // Fetch public recipes with ingredients eager loaded, pre-filtered by matching ingredient IDs
-            var publicRecipes = await _dbContext.Recipes
+            // Fetch public and current user's private recipes with ingredients eager loaded, pre-filtered by matching ingredient IDs
+            var recipes = await _dbContext.Recipes
                 .AsNoTracking()
-                .Where(r => r.IsPublic && r.RecipeIngredients.Any(ri => filterIds.Contains(ri.IngredientId)))
+                .Where(r => (r.IsPublic || (userId != null && r.UserId == userId)) && r.RecipeIngredients.Any(ri => filterIds.Contains(ri.IngredientId)))
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .ToListAsync();
 
             var matchedRecipes = new List<RecipeMatchResult>();
 
-            foreach (var recipe in publicRecipes)
+            foreach (var recipe in recipes)
             {
                 var recipeIngredients = recipe.RecipeIngredients.ToList();
                 if (!recipeIngredients.Any()) continue;
@@ -98,6 +98,7 @@ namespace _10x_cookbook_backend.Services
                         recipe.Id,
                         recipe.Title,
                         recipe.Instructions,
+                        recipe.IsPublic,
                         matchRate,
                         matched,
                         missing,
@@ -125,6 +126,7 @@ namespace _10x_cookbook_backend.Services
         Guid Id,
         string Title,
         string Instructions,
+        bool IsPublic,
         int MatchRate,
         List<string> MatchedIngredients,
         List<MissingIngredientResultDto> MissingIngredients,

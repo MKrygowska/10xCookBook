@@ -80,7 +80,7 @@
       <div class="no-results-icon">🔍</div>
       <h2>Brak pasujących przepisów</h2>
       <p>
-        Niestety, żaden publiczny przepis w bazie nie zawiera wprowadzonych składników. Dodaj inne składniki podstawowe, takie jak <strong>pomidor</strong>, <strong>makaron</strong>, <strong>pierś z kurczaka</strong> lub <strong>ryż</strong>, aby zobaczyć dopasowania.
+        Niestety, żaden przepis w bazie nie zawiera wprowadzonych składników. Dodaj inne składniki podstawowe, takie jak <strong>pomidor</strong>, <strong>makaron</strong>, <strong>pierś z kurczaka</strong> lub <strong>ryż</strong>, aby zobaczyć dopasowania.
       </p>
     </div>
 
@@ -100,6 +100,9 @@
               <h3 class="recipe-title">{{ recipe.title }}</h3>
             </div>
             <div class="match-badge-wrapper">
+              <span *ngIf="!recipe.isPublic" class="pill-private-badge">
+                🔒 Prywatny
+              </span>
               <span class="match-badge" [ngClass]="{
                 'match-high': recipe.matchRate >= 80,
                 'match-medium': recipe.matchRate >= 50 && recipe.matchRate < 80,

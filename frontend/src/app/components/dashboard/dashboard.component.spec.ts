@@ -23,6 +23,7 @@ describe('DashboardComponent', () => {
       id: 'r1',
       title: 'Zupa pomidorowa',
       instructions: 'Gotuj...',
+      isPublic: true,
       matchRate: 91,
       matchedIngredients: ['pomidor'],
       missingIngredients: [{ name: 'sól', isSpiceOrStaple: true, quantity: 'szczypta' }]
@@ -171,4 +172,42 @@ describe('DashboardComponent', () => {
     tick(200);
     expect(component.showDropdown).toBeFalse();
   }));
+
+  it('should render 🔒 Prywatny badge for private recipes and not for public recipes', () => {
+    component.selectedIngredients = ['pomidor'];
+    component.matchedRecipes = [
+      {
+        id: 'r1',
+        title: 'Zupa pomidorowa (Publiczna)',
+        instructions: 'Gotuj...',
+        isPublic: true,
+        matchRate: 91,
+        matchedIngredients: ['pomidor'],
+        missingIngredients: []
+      },
+      {
+        id: 'r2',
+        title: 'Tajny kurczak (Prywatny)',
+        instructions: 'Piecz...',
+        isPublic: false,
+        matchRate: 85,
+        matchedIngredients: ['pomidor'],
+        missingIngredients: []
+      }
+    ];
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const cards = compiled.querySelectorAll('.recipe-card');
+    expect(cards.length).toBe(2);
+
+    // First card: public
+    const publicCard = cards[0];
+    expect(publicCard.querySelector('.pill-private-badge')).toBeNull();
+
+    // Second card: private
+    const privateCard = cards[1];
+    const privateBadge = privateCard.querySelector('.pill-private-badge');
+    expect(privateBadge).toBeTruthy();
+    expect(privateBadge?.textContent).toContain('🔒 Prywatny');
+  });
 });

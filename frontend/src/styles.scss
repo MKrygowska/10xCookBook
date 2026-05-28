@@ -541,6 +541,23 @@ body {
 
 .match-badge-wrapper {
   margin-top: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.pill-private-badge {
+  background: var(--accent-gradient);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 8px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .match-badge {

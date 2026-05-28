@@ -18,6 +18,7 @@ export interface RecipeMatch {
   id: string;
   title: string;
   instructions: string;
+  isPublic: boolean;
   matchRate: number;
   matchedIngredients: string[];
   missingIngredients: MissingIngredient[];
