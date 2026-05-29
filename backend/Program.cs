@@ -82,6 +82,20 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Auto-apply EF migrations on startup
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    Console.WriteLine("Database migrations applied successfully.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Database migration failed: {ex.Message}");
+    // Don't crash the app — health endpoint will surface this
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -95,6 +109,42 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Health check endpoint — diagnose DB and config without logs
+app.MapGet("/api/health", (AppDbContext db, IConfiguration config) =>
+{
+    var results = new Dictionary<string, string>();
+
+    // Check DB connectivity
+    try
+    {
+        db.Database.CanConnect();
+        results["database"] = "ok";
+    }
+    catch (Exception ex)
+    {
+        results["database"] = $"error: {ex.Message}";
+    }
+
+    // Check JWT secret (without revealing it)
+    var jwtSecret = config["JwtSettings:Secret"];
+    results["jwtSecret"] = string.IsNullOrEmpty(jwtSecret) ? "missing"
+        : jwtSecret == "YOUR_JWT_SECRET_PLACEHOLDER" ? "placeholder - not configured"
+        : $"set ({jwtSecret.Length} chars)";
+
+    // Check connection string (without revealing credentials)
+    var connStr = config.GetConnectionString("DefaultConnection");
+    results["connectionString"] = string.IsNullOrEmpty(connStr) ? "missing" : "set";
+
+    // Check environment
+    results["environment"] = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "not set (defaults to Production)";
+
+    var allOk = results["database"] == "ok"
+        && results["jwtSecret"].StartsWith("set")
+        && results["connectionString"] == "set";
+
+    return Results.Json(new { status = allOk ? "healthy" : "degraded", checks = results });
+}).AllowAnonymous();
 
 app.MapControllers();
 
