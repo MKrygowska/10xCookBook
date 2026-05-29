@@ -362,21 +362,21 @@ Execute tests across both the API environment and the frontend to confirm total 
 
 #### Automated
 
-- [x] 2.1 Refactor and extend `RecipeService.cs` to handle private recipe retrieval, creation, update, and deletion, including domain exception throwing
-- [x] 2.2 Write comprehensive XUnit test cases in `backend/Tests/RecipeServiceTests.cs` checking CRUD and error states
-- [x] 2.3 Run tests and verify they pass cleanly (`dotnet test`)
+- [x] 2.1 Refactor and extend `RecipeService.cs` to handle private recipe retrieval, creation, update, and deletion, including domain exception throwing — 2aa44ee
+- [x] 2.2 Write comprehensive XUnit test cases in `backend/Tests/RecipeServiceTests.cs` checking CRUD and error states — 2aa44ee
+- [x] 2.3 Run tests and verify they pass cleanly (`dotnet test`) — 2aa44ee
 
 ### Phase 3: Controller Layer Implementation & Endpoint Cleanup (Clean Cut)
 
 #### Automated
 
-- [ ] 3.1 Create `BaseApiController.cs` in `backend/Controllers/` to hold shared claims parser and ApiController annotations
-- [ ] 3.2 Implement `AuthController.cs` handling login and registration with inline try-catch mappings
-- [ ] 3.3 Implement `UserController.cs` handling user deletion with inline try-catch mappings
-- [ ] 3.4 Implement `IngredientController.cs` handling ingredient listings with inline try-catch mappings
-- [ ] 3.5 Implement `RecipeController.cs` handling matching and CRUD with inline try-catch mappings mapping exceptions to exact HTTP status codes
-- [ ] 3.6 Register Controllers in `backend/Program.cs` and delete static minimal API mappings
-- [ ] 3.7 Delete the entire `backend/Endpoints/` legacy folder and verify compilation
+- [x] 3.1 Create `BaseApiController.cs` in `backend/Controllers/` to hold shared claims parser and ApiController annotations
+- [x] 3.2 Implement `AuthController.cs` handling login and registration with inline try-catch mappings
+- [x] 3.3 Implement `UserController.cs` handling user deletion with inline try-catch mappings
+- [x] 3.4 Implement `IngredientController.cs` handling ingredient listings with inline try-catch mappings
+- [x] 3.5 Implement `RecipeController.cs` handling matching and CRUD with inline try-catch mappings mapping exceptions to exact HTTP status codes
+- [x] 3.6 Register Controllers in `backend/Program.cs` and delete static minimal API mappings
+- [x] 3.7 Delete the entire `backend/Endpoints/` legacy folder and verify compilation
 
 ### Phase 4: Verification and Zero-Regression Testing
 

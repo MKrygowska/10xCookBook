@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using _10x_cookbook_backend.Data;
-using _10x_cookbook_backend.Endpoints;
 using _10x_cookbook_backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
 
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -96,14 +96,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map our authentication endpoints
-app.MapAuthEndpoints();
-
-// Map our recipe endpoints
-app.MapRecipeEndpoints();
-
-// Map our user endpoints
-app.MapUserEndpoints();
+app.MapControllers();
 
 Console.WriteLine("10xCookBook API Started");
 app.Run();
