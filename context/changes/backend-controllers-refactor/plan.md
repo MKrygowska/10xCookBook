@@ -370,22 +370,22 @@ Execute tests across both the API environment and the frontend to confirm total 
 
 #### Automated
 
-- [x] 3.1 Create `BaseApiController.cs` in `backend/Controllers/` to hold shared claims parser and ApiController annotations
-- [x] 3.2 Implement `AuthController.cs` handling login and registration with inline try-catch mappings
-- [x] 3.3 Implement `UserController.cs` handling user deletion with inline try-catch mappings
-- [x] 3.4 Implement `IngredientController.cs` handling ingredient listings with inline try-catch mappings
-- [x] 3.5 Implement `RecipeController.cs` handling matching and CRUD with inline try-catch mappings mapping exceptions to exact HTTP status codes
-- [x] 3.6 Register Controllers in `backend/Program.cs` and delete static minimal API mappings
-- [x] 3.7 Delete the entire `backend/Endpoints/` legacy folder and verify compilation
+- [x] 3.1 Create `BaseApiController.cs` in `backend/Controllers/` to hold shared claims parser and ApiController annotations — b887f3f
+- [x] 3.2 Implement `AuthController.cs` handling login and registration with inline try-catch mappings — b887f3f
+- [x] 3.3 Implement `UserController.cs` handling user deletion with inline try-catch mappings — b887f3f
+- [x] 3.4 Implement `IngredientController.cs` handling ingredient listings with inline try-catch mappings — b887f3f
+- [x] 3.5 Implement `RecipeController.cs` handling matching and CRUD with inline try-catch mappings mapping exceptions to exact HTTP status codes — b887f3f
+- [x] 3.6 Register Controllers in `backend/Program.cs` and delete static minimal API mappings — b887f3f
+- [x] 3.7 Delete the entire `backend/Endpoints/` legacy folder and verify compilation — b887f3f
 
 ### Phase 4: Verification and Zero-Regression Testing
 
 #### Automated
 
-- [ ] 4.1 Run all unit tests and verify 100% success (`dotnet test`)
-- [ ] 4.2 Validate backend routing using integration tests in `10x-cookbook-backend.http`
-- [ ] 4.3 Verify compilation of the frontend application (`npm run build` inside `frontend/`)
+- [x] 4.1 Run all unit tests and verify 100% success (`dotnet test`)
+- [x] 4.2 Validate backend routing using integration tests in `10x-cookbook-backend.http`
+- [x] 4.3 Verify compilation of the frontend application (`npm run build` inside `frontend/`)
 
 #### Manual
 
-- [ ] 4.4 Verify full recipe creation, list, update, and deletion workflows end-to-end through the web client interface
+- [x] 4.4 Verify full recipe creation, list, update, and deletion workflows end-to-end through the web client interface

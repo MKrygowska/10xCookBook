@@ -5,6 +5,7 @@ using _10x_cookbook_backend.Services;
 namespace _10x_cookbook_backend.Controllers
 {
     [Authorize]
+    [Route("api/users")]
     public class UserController : BaseApiController
     {
         private readonly UserService _userService;
