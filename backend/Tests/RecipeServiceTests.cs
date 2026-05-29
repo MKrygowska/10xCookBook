@@ -3,6 +3,8 @@ using Xunit;
 using _10x_cookbook_backend.Data;
 using _10x_cookbook_backend.Models;
 using _10x_cookbook_backend.Services;
+using _10x_cookbook_backend.DTOs;
+using _10x_cookbook_backend.Exceptions;
 
 namespace _10x_cookbook_backend.Tests
 {
@@ -222,6 +224,198 @@ namespace _10x_cookbook_backend.Tests
             Assert.Single(resultsForUserA);
             Assert.Equal("Kurczak Użytkownika A", resultsForUserA[0].Title);
             Assert.False(resultsForUserA[0].IsPublic);
+        }
+
+        [Fact]
+        public async Task GetMyRecipes_ShouldReturnCorrectRecipes()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "My Recipe", IsPublic = false, UserId = userId };
+            dbContext.Recipes.Add(recipe);
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act
+            var results = await recipeService.GetMyRecipesAsync(userId);
+
+            // Assert
+            Assert.Single(results);
+            Assert.Equal("My Recipe", results[0].Title);
+        }
+
+        [Fact]
+        public async Task CreateRecipe_WithDuplicateIngredients_ShouldThrowValidationException()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var ingredientId = Guid.NewGuid();
+            var recipeService = new RecipeService(dbContext);
+
+            var request = new CreateRecipeRequest("Tytul", "Instrukcja", new List<RecipeIngredientRequest>
+            {
+                new RecipeIngredientRequest(ingredientId, "100g"),
+                new RecipeIngredientRequest(ingredientId, "200g")
+            });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ValidationException>(() => recipeService.CreateRecipeAsync(userId, request));
+        }
+
+        [Fact]
+        public async Task CreateRecipe_WithInvalidIngredients_ShouldThrowValidationException()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var recipeService = new RecipeService(dbContext);
+
+            var request = new CreateRecipeRequest("Tytul", "Instrukcja", new List<RecipeIngredientRequest>
+            {
+                new RecipeIngredientRequest(Guid.NewGuid(), "100g")
+            });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ValidationException>(() => recipeService.CreateRecipeAsync(userId, request));
+        }
+
+        [Fact]
+        public async Task CreateRecipe_ShouldSucceed()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var ingredient = new Ingredient { Id = Guid.NewGuid(), Name = "pomidor", IsSpiceOrStaple = false };
+            dbContext.Ingredients.Add(ingredient);
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            var request = new CreateRecipeRequest("Zupa pomidorowa", "Gotuj...", new List<RecipeIngredientRequest>
+            {
+                new RecipeIngredientRequest(ingredient.Id, "500g")
+            });
+
+            // Act
+            var result = await recipeService.CreateRecipeAsync(userId, request);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("Zupa pomidorowa", result.Title);
+            Assert.Single(result.Ingredients);
+            Assert.Equal(ingredient.Id, result.Ingredients[0].IngredientId);
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_NonExistent_ShouldThrowNotFoundException()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var recipeService = new RecipeService(dbContext);
+
+            var request = new UpdateRecipeRequest("New Title", "New Instructions", null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => recipeService.UpdateRecipeAsync(Guid.NewGuid(), userId, request));
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_DifferentUser_ShouldThrowForbiddenException()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var ownerId = Guid.NewGuid();
+            var otherUserId = Guid.NewGuid();
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "Old Title", Instructions = "Old Instructions", UserId = ownerId };
+            dbContext.Recipes.Add(recipe);
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+            var request = new UpdateRecipeRequest("New Title", "New Instructions", null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ForbiddenException>(() => recipeService.UpdateRecipeAsync(recipe.Id, otherUserId, request));
+        }
+
+        [Fact]
+        public async Task UpdateRecipe_ShouldSucceed()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "Old Title", Instructions = "Old Instructions", UserId = userId };
+            var ingredient = new Ingredient { Id = Guid.NewGuid(), Name = "pomidor", IsSpiceOrStaple = false };
+            dbContext.Recipes.Add(recipe);
+            dbContext.Ingredients.Add(ingredient);
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+            var request = new UpdateRecipeRequest("New Title", "New Instructions", new List<RecipeIngredientRequest>
+            {
+                new RecipeIngredientRequest(ingredient.Id, "300g")
+            });
+
+            // Act
+            var result = await recipeService.UpdateRecipeAsync(recipe.Id, userId, request);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("New Title", result.Title);
+            Assert.Single(result.Ingredients);
+            Assert.Equal("300g", result.Ingredients[0].Quantity);
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_NonExistent_ShouldThrowNotFoundException()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var recipeService = new RecipeService(dbContext);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => recipeService.DeleteRecipeAsync(Guid.NewGuid(), userId));
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_DifferentUser_ShouldThrowForbiddenException()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var ownerId = Guid.NewGuid();
+            var otherUserId = Guid.NewGuid();
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "Title", Instructions = "Instructions", UserId = ownerId };
+            dbContext.Recipes.Add(recipe);
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ForbiddenException>(() => recipeService.DeleteRecipeAsync(recipe.Id, otherUserId));
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_ShouldSucceed()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var userId = Guid.NewGuid();
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "Title", Instructions = "Instructions", UserId = userId };
+            dbContext.Recipes.Add(recipe);
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act
+            await recipeService.DeleteRecipeAsync(recipe.Id, userId);
+
+            // Assert
+            var deletedRecipe = await dbContext.Recipes.FindAsync(recipe.Id);
+            Assert.Null(deletedRecipe);
         }
     }
 }
