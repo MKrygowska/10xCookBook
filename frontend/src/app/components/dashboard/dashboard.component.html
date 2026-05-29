@@ -6,15 +6,15 @@
     </div>
     <div class="user-controls">
       <div class="user-badge">
-        Zalogowany jako: <strong>{{ userEmail }}</strong>
+        Zalogowany jako:&nbsp;<strong>{{ userEmail }}</strong>
       </div>
-      <button routerLink="/my-recipes" class="premium-btn btn-secondary btn-logout">
+      <button routerLink="/my-recipes" class="btn-header-nav">
         Moje przepisy
       </button>
-      <button routerLink="/settings" class="premium-btn btn-secondary btn-logout">
+      <button routerLink="/settings" class="btn-header-nav">
         Ustawienia
       </button>
-      <button (click)="onLogout()" class="premium-btn btn-secondary btn-logout">
+      <button (click)="onLogout()" class="btn-header-nav">
         Wyloguj się
       </button>
     </div>
