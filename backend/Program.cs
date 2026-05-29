@@ -23,6 +23,9 @@ builder.Services.AddScoped<UserService>();
 // Add RecipeService as a scoped service
 builder.Services.AddScoped<RecipeService>();
 
+// Add IngredientService as a scoped service
+builder.Services.AddScoped<IngredientService>();
+
 // Add DataRetentionService as a hosted service
 builder.Services.AddHostedService<DataRetentionService>();
 
