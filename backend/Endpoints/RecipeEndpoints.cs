@@ -108,6 +108,11 @@ namespace _10x_cookbook_backend.Endpoints
 
                 if (request.Ingredients != null && request.Ingredients.Any())
                 {
+                    if (request.Ingredients.Select(ri => ri.IngredientId).Distinct().Count() != request.Ingredients.Count)
+                    {
+                        return Results.BadRequest(new { error = "Lista składników zawiera powtarzające się pozycje." });
+                    }
+
                     var reqIngredientIds = request.Ingredients.Select(ri => ri.IngredientId).ToList();
                     var validIngredientIds = await dbContext.Ingredients
                         .Where(i => reqIngredientIds.Contains(i.Id))
@@ -190,6 +195,11 @@ namespace _10x_cookbook_backend.Endpoints
 
                 if (request.Ingredients != null && request.Ingredients.Any())
                 {
+                    if (request.Ingredients.Select(ri => ri.IngredientId).Distinct().Count() != request.Ingredients.Count)
+                    {
+                        return Results.BadRequest(new { error = "Lista składników zawiera powtarzające się pozycje." });
+                    }
+
                     var reqIngredientIds = request.Ingredients.Select(ri => ri.IngredientId).ToList();
                     var validIngredientIds = await dbContext.Ingredients
                         .Where(i => reqIngredientIds.Contains(i.Id))

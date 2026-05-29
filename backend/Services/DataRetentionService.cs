@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 using _10x_cookbook_backend.Data;
 
 namespace _10x_cookbook_backend.Services
@@ -25,6 +26,18 @@ namespace _10x_cookbook_backend.Services
             var intervalHours = settings.GetValue<int>("CleanupIntervalHours", 24);
             var retentionMonths = settings.GetValue<int>("RetentionPeriodMonths", 24);
 
+            if (intervalHours <= 0)
+            {
+                _logger.LogWarning("Invalid CleanupIntervalHours value configured: {Value}. Falling back to 24 hours.", intervalHours);
+                intervalHours = 24;
+            }
+
+            if (retentionMonths <= 0)
+            {
+                _logger.LogWarning("Invalid RetentionPeriodMonths value configured: {Value}. Falling back to 24 months.", retentionMonths);
+                retentionMonths = 24;
+            }
+
             _logger.LogInformation("DataRetentionService initialized. Interval: {Hours}h, Retention: {Months}m", intervalHours, retentionMonths);
 
             while (!stoppingToken.IsCancellationRequested)
@@ -36,16 +49,30 @@ namespace _10x_cookbook_backend.Services
                         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                         var cutoff = DateTime.UtcNow.AddMonths(-retentionMonths);
                         
-                        var inactiveUsers = dbContext.Users
-                            .Where(u => u.LastActive < cutoff)
-                            .ToList();
-
-                        if (inactiveUsers.Any())
+                        if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
                         {
-                            _logger.LogInformation("Found {Count} inactive users older than {Cutoff}. Purging...", inactiveUsers.Count, cutoff);
-                            dbContext.Users.RemoveRange(inactiveUsers);
-                            await dbContext.SaveChangesAsync(stoppingToken);
-                            _logger.LogInformation("Successfully purged {Count} inactive users.", inactiveUsers.Count);
+                            var inactiveUsers = dbContext.Users
+                                .Where(u => u.LastActive < cutoff)
+                                .ToList();
+
+                            if (inactiveUsers.Any())
+                            {
+                                _logger.LogInformation("Found {Count} inactive users older than {Cutoff} (InMemory). Purging...", inactiveUsers.Count, cutoff);
+                                dbContext.Users.RemoveRange(inactiveUsers);
+                                await dbContext.SaveChangesAsync(stoppingToken);
+                                _logger.LogInformation("Successfully purged {Count} inactive users.", inactiveUsers.Count);
+                            }
+                        }
+                        else
+                        {
+                            var deletedCount = await dbContext.Users
+                                .Where(u => u.LastActive < cutoff)
+                                .ExecuteDeleteAsync(stoppingToken);
+
+                            if (deletedCount > 0)
+                            {
+                                _logger.LogInformation("Successfully purged {Count} inactive users older than {Cutoff}.", deletedCount, cutoff);
+                            }
                         }
                     }
                 }

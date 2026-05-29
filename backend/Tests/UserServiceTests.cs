@@ -232,8 +232,8 @@ namespace _10x_cookbook_backend.Tests
             await runTask;
 
             // Assert
-            Assert.NotNull(dbContext.Users.Find(activeUser!.Id));
-            Assert.Null(dbContext.Users.Find(inactiveUser.Id));
+            Assert.NotNull(dbContext.Users.AsNoTracking().FirstOrDefault(u => u.Id == activeUser!.Id));
+            Assert.Null(dbContext.Users.AsNoTracking().FirstOrDefault(u => u.Id == inactiveUser.Id));
         }
 
         private class MockServiceScopeFactory : IServiceScopeFactory
