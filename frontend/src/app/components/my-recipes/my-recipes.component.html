@@ -6,12 +6,12 @@
     </div>
     <div class="user-controls">
       <div class="user-badge">
-        Zalogowany jako: <strong>{{ userEmail }}</strong>
+        Zalogowany jako:&nbsp;<strong>{{ userEmail }}</strong>
       </div>
-      <button routerLink="/dashboard" class="premium-btn btn-secondary btn-logout">
+      <button routerLink="/dashboard" class="btn-header-nav">
         Powrót do pulpitu
       </button>
-      <button (click)="onLogout()" class="premium-btn btn-secondary btn-logout">
+      <button (click)="onLogout()" class="btn-header-nav">
         Wyloguj się
       </button>
     </div>
