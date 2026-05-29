@@ -7,8 +7,8 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
 })
 export class AuthService {
   private readonly apiUrl = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5174/api/auth' 
-    : '/api/auth';
+    ? 'http://localhost:5174/api' 
+    : '/api';
 
   private readonly tokenKey = 'auth_token';
   private readonly emailKey = 'auth_email';
@@ -19,13 +19,13 @@ export class AuthService {
   constructor(private http: HttpClient) {}
 
   register(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/register`, credentials).pipe(
+    return this.http.post<any>(`${this.apiUrl}/auth/register`, credentials).pipe(
       tap(res => this.handleAuthSuccess(res))
     );
   }
 
   login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.http.post<any>(`${this.apiUrl}/auth/login`, credentials).pipe(
       tap(res => this.handleAuthSuccess(res))
     );
   }
@@ -34,6 +34,10 @@ export class AuthService {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.emailKey);
     this.isAuthenticatedSubject.next(false);
+  }
+
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/users/me`);
   }
 
   isAuthenticated(): boolean {

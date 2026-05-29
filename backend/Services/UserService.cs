@@ -33,7 +33,8 @@ namespace _10x_cookbook_backend.Services
             {
                 Id = Guid.NewGuid(),
                 Email = email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                LastActive = DateTime.UtcNow
             };
 
             try
@@ -62,6 +63,9 @@ namespace _10x_cookbook_backend.Services
                 errorMessage = "Niepoprawny e-mail lub hasło.";
                 return null;
             }
+
+            user.LastActive = DateTime.UtcNow;
+            _dbContext.SaveChanges();
 
             return GenerateJwtToken(user);
         }
@@ -102,6 +106,40 @@ namespace _10x_cookbook_backend.Services
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public void UpdateUserActivity(Guid userId)
+        {
+            var user = _dbContext.Users.Find(userId);
+            if (user != null)
+            {
+                user.LastActive = DateTime.UtcNow;
+                _dbContext.SaveChanges();
+            }
+        }
+
+        public bool DeleteUser(Guid userId, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+            var user = _dbContext.Users.Find(userId);
+            if (user == null)
+            {
+                errorMessage = "Użytkownik nie istnieje.";
+                return false;
+            }
+
+            try
+            {
+                _dbContext.Users.Remove(user);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errorMessage = "Wystąpił błąd podczas usuwania użytkownika.";
+                Console.WriteLine($"DeleteUser error: {ex.Message}");
+                return false;
+            }
         }
     }
 }

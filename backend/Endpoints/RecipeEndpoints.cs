@@ -82,7 +82,8 @@ namespace _10x_cookbook_backend.Endpoints
             app.MapPost("/api/recipes", async (
                 ClaimsPrincipal user, 
                 [FromBody] CreateRecipeRequest request, 
-                AppDbContext dbContext) =>
+                AppDbContext dbContext,
+                UserService userService) =>
             {
                 var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!Guid.TryParse(userIdClaim, out var userId))
@@ -107,6 +108,11 @@ namespace _10x_cookbook_backend.Endpoints
 
                 if (request.Ingredients != null && request.Ingredients.Any())
                 {
+                    if (request.Ingredients.Select(ri => ri.IngredientId).Distinct().Count() != request.Ingredients.Count)
+                    {
+                        return Results.BadRequest(new { error = "Lista składników zawiera powtarzające się pozycje." });
+                    }
+
                     var reqIngredientIds = request.Ingredients.Select(ri => ri.IngredientId).ToList();
                     var validIngredientIds = await dbContext.Ingredients
                         .Where(i => reqIngredientIds.Contains(i.Id))
@@ -132,6 +138,8 @@ namespace _10x_cookbook_backend.Endpoints
                 dbContext.Recipes.Add(recipe);
                 await dbContext.SaveChangesAsync();
 
+                userService.UpdateUserActivity(userId);
+
                 return Results.Created($"/api/recipes/{recipe.Id}", new
                 {
                     recipe.Id,
@@ -151,7 +159,8 @@ namespace _10x_cookbook_backend.Endpoints
                 Guid id,
                 ClaimsPrincipal user, 
                 [FromBody] UpdateRecipeRequest request, 
-                AppDbContext dbContext) =>
+                AppDbContext dbContext,
+                UserService userService) =>
             {
                 var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!Guid.TryParse(userIdClaim, out var userId))
@@ -186,6 +195,11 @@ namespace _10x_cookbook_backend.Endpoints
 
                 if (request.Ingredients != null && request.Ingredients.Any())
                 {
+                    if (request.Ingredients.Select(ri => ri.IngredientId).Distinct().Count() != request.Ingredients.Count)
+                    {
+                        return Results.BadRequest(new { error = "Lista składników zawiera powtarzające się pozycje." });
+                    }
+
                     var reqIngredientIds = request.Ingredients.Select(ri => ri.IngredientId).ToList();
                     var validIngredientIds = await dbContext.Ingredients
                         .Where(i => reqIngredientIds.Contains(i.Id))
@@ -209,6 +223,9 @@ namespace _10x_cookbook_backend.Endpoints
                 }
 
                 await dbContext.SaveChangesAsync();
+
+                userService.UpdateUserActivity(userId);
+
                 return Results.Ok(new
                 {
                     recipe.Id,
@@ -227,7 +244,8 @@ namespace _10x_cookbook_backend.Endpoints
             app.MapDelete("/api/recipes/{id:guid}", async (
                 Guid id,
                 ClaimsPrincipal user, 
-                AppDbContext dbContext) =>
+                AppDbContext dbContext,
+                UserService userService) =>
             {
                 var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (!Guid.TryParse(userIdClaim, out var userId))
@@ -249,6 +267,8 @@ namespace _10x_cookbook_backend.Endpoints
 
                 dbContext.Recipes.Remove(recipe);
                 await dbContext.SaveChangesAsync();
+
+                userService.UpdateUserActivity(userId);
 
                 return Results.NoContent();
             })

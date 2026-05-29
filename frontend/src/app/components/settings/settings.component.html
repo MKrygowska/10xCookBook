@@ -1,0 +1,87 @@
+<div class="settings-wrapper">
+  <!-- Top Navigation Header -->
+  <header class="settings-header">
+    <div class="logo-area">
+      <span class="brand-logo-small" routerLink="/dashboard">10xCookBook</span>
+    </div>
+    <div class="user-controls">
+      <button routerLink="/dashboard" class="premium-btn btn-secondary">
+        Powrót do Dashboardu
+      </button>
+    </div>
+  </header>
+
+  <main class="settings-content">
+    <section class="settings-section premium-card">
+      <h1 class="settings-title">Ustawienia Konta</h1>
+      <p class="settings-desc">
+        Zarządzaj swoimi danymi osobowymi i prywatnością zgodnie z przepisami RODO (GDPR).
+      </p>
+
+      <div class="settings-info-group">
+        <label class="info-label">Twój zarejestrowany e-mail:</label>
+        <div class="info-value">{{ userEmail }}</div>
+      </div>
+
+      <hr class="premium-divider" />
+
+      <div class="danger-zone">
+        <h2 class="danger-zone-title">Strefa Zagrożenia (Danger Zone)</h2>
+        <p class="danger-zone-desc">
+          Jeżeli zdecydujesz się usunąć swoje konto, wszystkie Twoje prywatne przepisy oraz dane zostaną bezpowrotnie i trwale skasowane z bazy danych aplikacji. Ta operacja jest nieodwracalna.
+        </p>
+
+        <button (click)="onOpenModal()" class="danger-delete-btn">
+          Usuń moje konto
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Email Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-card premium-card">
+      <header class="modal-header">
+        <h3>Potwierdź usunięcie konta</h3>
+        <button (click)="onCloseModal()" class="close-modal-btn">&times;</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="warning-alert">
+          <span class="warning-icon">⚠</span>
+          <p>
+            <strong>Uwaga:</strong> Ta operacja jest <strong>nieodwracalna</strong>. Twoje konto, historia i wszystkie prywatne przepisy zostaną trwale skasowane.
+          </p>
+        </div>
+
+        <p class="confirmation-instruction">
+          Wpisz swój adres e-mail (<strong>{{ userEmail }}</strong>), aby potwierdzić chęć usunięcia konta:
+        </p>
+
+        <input 
+          type="email" 
+          class="form-input confirmation-input" 
+          placeholder="Wpisz Twój e-mail..." 
+          [(ngModel)]="confirmationEmail"
+        />
+
+        <div class="error-alert" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button (click)="onCloseModal()" class="premium-btn btn-secondary">
+          Anuluj
+        </button>
+        <button 
+          (click)="onDeleteAccount()" 
+          class="premium-btn btn-danger-action"
+          [disabled]="confirmationEmail.trim().toLowerCase() !== userEmail.trim().toLowerCase() || isDeleting"
+        >
+          {{ isDeleting ? 'Usuwanie...' : 'Potwierdzam, usuń moje konto' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>

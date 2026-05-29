@@ -23,6 +23,9 @@ builder.Services.AddScoped<UserService>();
 // Add RecipeService as a scoped service
 builder.Services.AddScoped<RecipeService>();
 
+// Add DataRetentionService as a hosted service
+builder.Services.AddHostedService<DataRetentionService>();
+
 // Add CORS services
 builder.Services.AddCors(options =>
 {
@@ -95,6 +98,9 @@ app.MapAuthEndpoints();
 
 // Map our recipe endpoints
 app.MapRecipeEndpoints();
+
+// Map our user endpoints
+app.MapUserEndpoints();
 
 Console.WriteLine("10xCookBook API Started");
 app.Run();
