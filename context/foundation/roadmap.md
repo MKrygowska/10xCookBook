@@ -31,7 +31,7 @@ top_blocker: time
 |---|---|---|---|---|---|
 | F-01 | auth-foundation | (fundament) Autoryzacja JWT i schemat użytkownika | — | FR-007, FR-008 | done |
 | F-02 | database-foundation | (fundament) Konfiguracja bazy danych EF Core i migracje | F-01 | FR-004 | proposed |
-| F-03 | deployment-ci-cd | (fundament) Automatyzacja wdrożenia GitHub Actions na Azure | — | NFR (Dostępność) | ready |
+| F-03 | deployment-ci-cd | (fundament) Automatyzacja wdrożenia GitHub Actions na Azure | — | NFR (Dostępność) | done |
 | S-01 | public-recipe-matching | Wyszukiwanie przepisów po składnikach (publiczne) | F-01, F-02 | US-01, FR-001, FR-002 | done |
 | S-02 | private-recipe-crud | Tworzenie i edycja własnych prywatnych przepisów (CRUD) | S-01 | FR-005, FR-006 | done |
 | S-03 | unified-matching | Wyszukiwanie przepisów po składnikach (publiczne + prywatne) | S-01, S-02 | FR-003, Guardrail (Izolacja) | done |
@@ -100,7 +100,7 @@ Bieżący stan kodu zweryfikowany automatycznie na dzień 2026-05-25. Fundamenty
 - **Blokady:** Konieczność ręcznej konfiguracji sekretów wdrożeniowych (secrets) po stronie repozytorium GitHub użytkownika.
 - **Niewiadome:** Czy repozytorium zdalne GitHub zostało już przygotowane.
 - **Ryzyko:** Przekroczenie darmowych minut kompilacji GitHub Actions lub limity czasu wdrożenia Azure Static Web Apps. Mitygacja: czyste skrypty budujące bez uruchamiania ciężkich testów integracyjnych w chmurze.
-- **Status:** ready
+- **Status:** done
 
 ## Wycinki
 
@@ -212,3 +212,4 @@ Bieżący stan kodu zweryfikowany automatycznie na dzień 2026-05-25. Fundamenty
 - **S-04: Retencja danych użytkownika (samodzielne usuwanie i czyszczenie nieaktywnych kont)** — Archived 2026-05-29 → `context/archive/2026-05-28-user-data-retention/`. Lesson: —.
 - **S-05: Poprawienie spójności i wyrównania przycisków na dashboardzie (ui-button-alignment)** — Archived 2026-05-29 → `context/archive/2026-05-29-ui-button-alignment/`. Lesson: —.
 - **F-04: (fundament) Refaktoryzacja API do klasycznych kontrolerów i odchudzenie punktów końcowych** — Archived 2026-05-29 → `context/archive/2026-05-29-backend-controllers-refactor/`. Lesson: —.
+- **F-03: (fundament) Automatyzacja wdrożenia GitHub Actions na Azure** — Archived 2026-05-29 → `context/archive/2026-05-29-deployment-ci-cd/`. Lesson: —.
