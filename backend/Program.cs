@@ -100,3 +100,5 @@ app.MapControllers();
 
 Console.WriteLine("10xCookBook API Started");
 app.Run();
+
+// Trigger backend redeployment to live Sweden Central App Service to load latest Controllers endpoints.
