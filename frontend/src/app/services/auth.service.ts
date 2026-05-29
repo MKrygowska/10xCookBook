@@ -8,7 +8,7 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
 export class AuthService {
   private readonly apiUrl = window.location.hostname === 'localhost' 
     ? 'http://localhost:5174/api' 
-    : '/api';
+    : 'https://cookbook-api-unique.azurewebsites.net/api';
 
   private readonly tokenKey = 'auth_token';
   private readonly emailKey = 'auth_email';

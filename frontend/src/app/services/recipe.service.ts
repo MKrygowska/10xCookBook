@@ -44,7 +44,7 @@ export interface Recipe {
 export class RecipeService {
   private readonly apiUrl = window.location.hostname === 'localhost' 
     ? 'http://localhost:5174/api' 
-    : '/api';
+    : 'https://cookbook-api-unique.azurewebsites.net/api';
 
   constructor(private http: HttpClient) {}
 
