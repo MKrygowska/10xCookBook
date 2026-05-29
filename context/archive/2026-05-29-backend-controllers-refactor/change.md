@@ -1,10 +1,10 @@
 ---
 change_id: backend-controllers-refactor
 title: Backend controllers refactor
-status: impl_reviewed
+status: archived
 created: 2026-05-29
 updated: 2026-05-29
-archived_at: null
+archived_at: 2026-05-29T15:02:25Z
 ---
 
 ## Notes
