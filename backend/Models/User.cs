@@ -7,6 +7,7 @@ namespace _10x_cookbook_backend.Models
         public Guid Id { get; set; }
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
+        public DateTime LastActive { get; set; } = DateTime.UtcNow;
 
         [JsonIgnore]
         public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();

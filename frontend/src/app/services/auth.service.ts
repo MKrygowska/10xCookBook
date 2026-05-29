@@ -36,6 +36,13 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  deleteAccount(): Observable<void> {
+    const deleteUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5174/api/users/me' 
+      : '/api/users/me';
+    return this.http.delete<void>(deleteUrl);
+  }
+
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
