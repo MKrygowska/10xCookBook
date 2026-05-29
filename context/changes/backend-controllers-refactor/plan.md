@@ -353,18 +353,18 @@ Execute tests across both the API environment and the frontend to confirm total 
 
 #### Automated
 
-- [x] 1.1 Create custom Exception classes (`ValidationException.cs`, `NotFoundException.cs`, `ForbiddenException.cs`) in `backend/Exceptions/`
-- [x] 1.2 Create centralized DTO records in `backend/DTOs/AuthDtos.cs`, `backend/DTOs/RecipeDtos.cs`, and `backend/DTOs/IngredientDtos.cs`
-- [x] 1.3 Implement new `IngredientService.cs` in `backend/Services/`
-- [x] 1.4 Register the new `IngredientService` in `backend/Program.cs` and verify compilation
+- [x] 1.1 Create custom Exception classes (`ValidationException.cs`, `NotFoundException.cs`, `ForbiddenException.cs`) in `backend/Exceptions/` — 5d3fc3d
+- [x] 1.2 Create centralized DTO records in `backend/DTOs/AuthDtos.cs`, `backend/DTOs/RecipeDtos.cs`, and `backend/DTOs/IngredientDtos.cs` — 5d3fc3d
+- [x] 1.3 Implement new `IngredientService.cs` in `backend/Services/` — 5d3fc3d
+- [x] 1.4 Register the new `IngredientService` in `backend/Program.cs` and verify compilation — 5d3fc3d
 
 ### Phase 2: Service Layer Refactoring & Unit Tests Expansion
 
 #### Automated
 
-- [ ] 2.1 Refactor and extend `RecipeService.cs` to handle private recipe retrieval, creation, update, and deletion, including domain exception throwing
-- [ ] 2.2 Write comprehensive XUnit test cases in `backend/Tests/RecipeServiceTests.cs` checking CRUD and error states
-- [ ] 2.3 Run tests and verify they pass cleanly (`dotnet test`)
+- [x] 2.1 Refactor and extend `RecipeService.cs` to handle private recipe retrieval, creation, update, and deletion, including domain exception throwing
+- [x] 2.2 Write comprehensive XUnit test cases in `backend/Tests/RecipeServiceTests.cs` checking CRUD and error states
+- [x] 2.3 Run tests and verify they pass cleanly (`dotnet test`)
 
 ### Phase 3: Controller Layer Implementation & Endpoint Cleanup (Clean Cut)
 
