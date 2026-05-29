@@ -115,11 +115,11 @@ app.MapGet("/api/health", (AppDbContext db, IConfiguration config) =>
 {
     var results = new Dictionary<string, string>();
 
-    // Check DB connectivity
+    // Check DB connectivity AND schema (query Users table)
     try
     {
-        db.Database.CanConnect();
-        results["database"] = "ok";
+        var userCount = db.Users.Count();
+        results["database"] = $"ok (Users table accessible, {userCount} rows)";
     }
     catch (Exception ex)
     {
@@ -139,7 +139,7 @@ app.MapGet("/api/health", (AppDbContext db, IConfiguration config) =>
     // Check environment
     results["environment"] = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "not set (defaults to Production)";
 
-    var allOk = results["database"] == "ok"
+    var allOk = results["database"].StartsWith("ok")
         && results["jwtSecret"].StartsWith("set")
         && results["connectionString"] == "set";
 

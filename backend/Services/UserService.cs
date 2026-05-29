@@ -23,22 +23,22 @@ namespace _10x_cookbook_backend.Services
             errorMessage = string.Empty;
             email = email.Trim().ToLower();
 
-            if (_dbContext.Users.Any(u => u.Email == email))
-            {
-                errorMessage = "Ten e-mail jest już zajęty.";
-                return null;
-            }
-
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Email = email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
-                LastActive = DateTime.UtcNow
-            };
-
             try
             {
+                if (_dbContext.Users.Any(u => u.Email == email))
+                {
+                    errorMessage = "Ten e-mail jest już zajęty.";
+                    return null;
+                }
+
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                    LastActive = DateTime.UtcNow
+                };
+
                 _dbContext.Users.Add(user);
                 _dbContext.SaveChanges();
                 return user;
