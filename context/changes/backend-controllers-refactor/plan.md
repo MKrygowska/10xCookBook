@@ -382,10 +382,10 @@ Execute tests across both the API environment and the frontend to confirm total 
 
 #### Automated
 
-- [x] 4.1 Run all unit tests and verify 100% success (`dotnet test`)
-- [x] 4.2 Validate backend routing using integration tests in `10x-cookbook-backend.http`
-- [x] 4.3 Verify compilation of the frontend application (`npm run build` inside `frontend/`)
+- [x] 4.1 Run all unit tests and verify 100% success (`dotnet test`) — c0c3138
+- [x] 4.2 Validate backend routing using integration tests in `10x-cookbook-backend.http` — c0c3138
+- [x] 4.3 Verify compilation of the frontend application (`npm run build` inside `frontend/`) — c0c3138
 
 #### Manual
 
-- [x] 4.4 Verify full recipe creation, list, update, and deletion workflows end-to-end through the web client interface
+- [x] 4.4 Verify full recipe creation, list, update, and deletion workflows end-to-end through the web client interface — c0c3138

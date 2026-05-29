@@ -1,7 +1,7 @@
 ---
 change_id: backend-controllers-refactor
 title: Backend controllers refactor
-status: implementing
+status: implemented
 created: 2026-05-29
 updated: 2026-05-29
 archived_at: null
