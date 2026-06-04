@@ -33,7 +33,7 @@ namespace _10x_cookbook_backend.Services
             // Resolve matching ingredients from names at the DB level
             var matchingIngredients = await _dbContext.Ingredients
                 .AsNoTracking()
-                .Where(i => normalizedUserIngredients.Contains(i.Name))
+                .Where(i => normalizedUserIngredients.Contains(i.Name.ToLower()))
                 .Select(i => new { i.Id, i.IsSpiceOrStaple })
                 .ToListAsync();
 

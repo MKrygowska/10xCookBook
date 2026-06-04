@@ -22,11 +22,11 @@ namespace _10x_cookbook_backend.Tests
         private void SeedTestData(AppDbContext dbContext)
         {
             // Seed Ingredients
-            var pomidor = new Ingredient { Id = Guid.NewGuid(), Name = "pomidor", IsSpiceOrStaple = false };
+            var pomidor = new Ingredient { Id = Guid.NewGuid(), Name = "Pomidor", IsSpiceOrStaple = false };
             var cebula = new Ingredient { Id = Guid.NewGuid(), Name = "cebula", IsSpiceOrStaple = false };
             var czosnek = new Ingredient { Id = Guid.NewGuid(), Name = "czosnek", IsSpiceOrStaple = false };
             var makaron = new Ingredient { Id = Guid.NewGuid(), Name = "makaron", IsSpiceOrStaple = false };
-            var oliwa = new Ingredient { Id = Guid.NewGuid(), Name = "oliwa z oliwek", IsSpiceOrStaple = true };
+            var oliwa = new Ingredient { Id = Guid.NewGuid(), Name = "Oliwa z Oliwek", IsSpiceOrStaple = true };
             var sol = new Ingredient { Id = Guid.NewGuid(), Name = "sól", IsSpiceOrStaple = true };
 
             dbContext.Ingredients.AddRange(pomidor, cebula, czosnek, makaron, oliwa, sol);
@@ -79,8 +79,8 @@ namespace _10x_cookbook_backend.Tests
             var tomatoSoup = results.FirstOrDefault(r => r.Title == "Zupa pomidorowa");
             Assert.NotNull(tomatoSoup);
             Assert.Equal(91, tomatoSoup.MatchRate);
-            Assert.Contains("pomidor", tomatoSoup.MatchedIngredients);
-            var missingOliwa = tomatoSoup.MissingIngredients.FirstOrDefault(m => m.Name == "oliwa z oliwek");
+            Assert.Contains("Pomidor", tomatoSoup.MatchedIngredients);
+            var missingOliwa = tomatoSoup.MissingIngredients.FirstOrDefault(m => m.Name == "Oliwa z Oliwek");
             Assert.NotNull(missingOliwa);
             Assert.True(missingOliwa.IsSpiceOrStaple);
 
