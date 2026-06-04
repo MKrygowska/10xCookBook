@@ -159,14 +159,14 @@ Add comprehensive unit tests to [RecipeServiceTests.cs](file:///c:/Users/reade/D
 
 #### Automated
 
-- [x] 1.1 Backend project builds cleanly: `dotnet build`
-- [x] 1.2 All current tests pass: `dotnet test`
+- [x] 1.1 Backend project builds cleanly: `dotnet build` — 5aab20c
+- [x] 1.2 All current tests pass: `dotnet test` — 5aab20c
 
 ### Phase 2: Controller JWT Wiring & Data Isolation Integration Tests (Risk #1)
 
 #### Automated
 
-- [ ] 2.1 Backend compiles and tests run successfully: `dotnet test`
+- [x] 2.1 Backend compiles and tests run successfully: `dotnet test`
 
 ### Phase 3: Match Rate Scoring & Sorting Edge Cases Unit Tests (Risk #2)
 

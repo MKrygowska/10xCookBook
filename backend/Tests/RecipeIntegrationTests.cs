@@ -18,6 +18,7 @@ using Xunit;
 using _10x_cookbook_backend.Data;
 using _10x_cookbook_backend.Models;
 using _10x_cookbook_backend.DTOs;
+using _10x_cookbook_backend.Services;
 
 namespace _10x_cookbook_backend.Tests
 {
@@ -28,10 +29,15 @@ namespace _10x_cookbook_backend.Tests
 
         public RecipeIntegrationTests()
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             _dbName = Guid.NewGuid().ToString();
             _factory = new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
+                    builder.UseEnvironment("Development");
+                    var projectDir = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+                    builder.UseContentRoot(projectDir);
+
                     builder.ConfigureServices(services =>
                     {
                         // Remove existing DbContextOptions
@@ -143,9 +149,101 @@ namespace _10x_cookbook_backend.Tests
         }
 
         [Fact]
-        public void SetupTest()
+        public async Task MatchRecipes_ShouldReturnUnauthorized_WhenTokenIsMissing()
         {
-            Assert.True(true);
+            // Arrange
+            var client = _factory.CreateClient();
+            var request = new MatchRecipesRequest(new List<string> { "pomidor" });
+
+            // Act
+            var response = await client.PostAsJsonAsync("/api/recipes/match", request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldReturnUnauthorized_WhenTokenIsMalformed()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "malformedTokenContentHere");
+            var request = new MatchRecipesRequest(new List<string> { "pomidor" });
+
+            // Act
+            var response = await client.PostAsJsonAsync("/api/recipes/match", request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldIsolatePrivateRecipes()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var userAId = Guid.NewGuid();
+            var userBId = Guid.NewGuid();
+
+            // Seed DB
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                await SeedTestDataAsync(dbContext, userAId, userBId);
+            }
+
+            // Generate token for User A
+            var token = GenerateToken(userAId, "usera@test.com");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Search for "ser" (which is in Private Pizza A and Private Pasta B)
+            var request = new MatchRecipesRequest(new List<string> { "ser" });
+
+            // Act
+            var response = await client.PostAsJsonAsync("/api/recipes/match", request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var results = await response.Content.ReadFromJsonAsync<List<RecipeMatchResult>>();
+            Assert.NotNull(results);
+
+            // User A should see "Private Pizza A" but NOT "Private Pasta B"
+            Assert.Contains(results, r => r.Title == "Private Pizza A");
+            Assert.DoesNotContain(results, r => r.Title == "Private Pasta B");
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldIncludePublicRecipesForAnyAuthenticatedUser()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var userAId = Guid.NewGuid();
+            var userBId = Guid.NewGuid();
+
+            // Seed DB
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                await SeedTestDataAsync(dbContext, userAId, userBId);
+            }
+
+            // Generate token for User A
+            var token = GenerateToken(userAId, "usera@test.com");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Search for "pomidor" (which is in "Public Soup")
+            var request = new MatchRecipesRequest(new List<string> { "pomidor" });
+
+            // Act
+            var response = await client.PostAsJsonAsync("/api/recipes/match", request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var results = await response.Content.ReadFromJsonAsync<List<RecipeMatchResult>>();
+            Assert.NotNull(results);
+
+            // User A should see "Public Soup"
+            Assert.Contains(results, r => r.Title == "Public Soup");
         }
     }
 }
