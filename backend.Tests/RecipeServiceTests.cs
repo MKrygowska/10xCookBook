@@ -255,14 +255,15 @@ namespace _10x_cookbook_backend.Tests
             var ingredientId = Guid.NewGuid();
             var recipeService = new RecipeService(dbContext);
 
-            var request = new CreateRecipeRequest("Tytul", "Instrukcja", new List<RecipeIngredientRequest>
+            var reqList = new List<RecipeIngredientRequest>
             {
                 new RecipeIngredientRequest(ingredientId, "100g"),
                 new RecipeIngredientRequest(ingredientId, "200g")
-            });
+            };
+            var requestObj = new CreateRecipeRequest("Tytul", "Instrukcja", reqList);
 
             // Act & Assert
-            await Assert.ThrowsAsync<ValidationException>(() => recipeService.CreateRecipeAsync(userId, request));
+            await Assert.ThrowsAsync<ValidationException>(() => recipeService.CreateRecipeAsync(userId, requestObj));
         }
 
         [Fact]
