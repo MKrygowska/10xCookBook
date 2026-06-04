@@ -44,15 +44,7 @@ builder.Services.AddCors(options =>
 var secret = builder.Configuration["JwtSettings:Secret"];
 if (string.IsNullOrEmpty(secret) || secret == "YOUR_JWT_SECRET_PLACEHOLDER")
 {
-    var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    if (env == "Development")
-    {
-        secret = "SuperSecure10xCookBookSecretKey2026!ThatIsAtLeast32BytesLong";
-    }
-    else
-    {
-        throw new InvalidOperationException("JWT Secret is not configured. Please set the 'JwtSettings:Secret' configuration value or the 'JwtSettings__Secret' environment variable.");
-    }
+    throw new InvalidOperationException("JWT Secret is not configured. Please set the 'JwtSettings:Secret' configuration value or the 'JwtSettings__Secret' environment variable.");
 }
 var issuer = builder.Configuration["JwtSettings:Issuer"] ?? "10xCookBookAPI";
 var audience = builder.Configuration["JwtSettings:Audience"] ?? "10xCookBookClient";
@@ -152,3 +144,5 @@ Console.WriteLine("10xCookBook API Started");
 app.Run();
 
 // Trigger backend redeployment to live Sweden Central App Service to load latest Controllers endpoints.
+
+public partial class Program { }
