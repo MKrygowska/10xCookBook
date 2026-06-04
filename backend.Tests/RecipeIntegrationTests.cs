@@ -26,9 +26,11 @@ namespace _10x_cookbook_backend.Tests
     {
         private readonly WebApplicationFactory<Program> _factory;
         private readonly string _dbName;
+        private readonly string? _originalEnv;
 
         public RecipeIntegrationTests()
         {
+            _originalEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             _dbName = Guid.NewGuid().ToString();
             _factory = new WebApplicationFactory<Program>()
@@ -59,6 +61,7 @@ namespace _10x_cookbook_backend.Tests
 
         public void Dispose()
         {
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", _originalEnv);
             _factory.Dispose();
         }
 
