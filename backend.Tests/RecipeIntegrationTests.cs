@@ -37,7 +37,7 @@ namespace _10x_cookbook_backend.Tests
                 .WithWebHostBuilder(builder =>
                 {
                     builder.UseEnvironment("Development");
-                    var projectDir = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+                    var projectDir = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "backend"));
                     builder.UseContentRoot(projectDir);
 
                     builder.ConfigureServices(services =>
