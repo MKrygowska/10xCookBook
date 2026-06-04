@@ -417,5 +417,193 @@ namespace _10x_cookbook_backend.Tests
             var deletedRecipe = await dbContext.Recipes.FindAsync(recipe.Id);
             Assert.Null(deletedRecipe);
         }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldFollowBankersRounding()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+
+            // Recipe 1 & 2: 8 primary ingredients each. Total weight = 8.0
+            var recipe1 = new Recipe { Id = Guid.NewGuid(), Title = "Recipe 12.5", Instructions = "Instructions", IsPublic = true };
+            var recipe2 = new Recipe { Id = Guid.NewGuid(), Title = "Recipe 37.5", Instructions = "Instructions", IsPublic = true };
+            dbContext.Recipes.AddRange(recipe1, recipe2);
+
+            var primaryIngredients = new List<Ingredient>();
+            for (int i = 0; i < 8; i++)
+            {
+                var ing = new Ingredient { Id = Guid.NewGuid(), Name = $"primary{i}", IsSpiceOrStaple = false };
+                primaryIngredients.Add(ing);
+                dbContext.Ingredients.Add(ing);
+            }
+
+            await dbContext.SaveChangesAsync();
+
+            // Link all 8 ingredients to both recipes
+            foreach (var ing in primaryIngredients)
+            {
+                dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = recipe1.Id, IngredientId = ing.Id, Quantity = "1" });
+                dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = recipe2.Id, IngredientId = ing.Id, Quantity = "1" });
+            }
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act 1: User has 1 primary ingredient -> Matched weight = 1.0. Ratio = 1.0 / 8.0 = 12.5% => rounds to 12 (even)
+            var userIngredients1 = primaryIngredients.Take(1).Select(i => i.Name).ToList();
+            var results1 = await recipeService.MatchRecipesAsync(userIngredients1);
+
+            // Assert 1: rounds down to 12
+            var matchedRecipe1 = results1.FirstOrDefault(r => r.Title == "Recipe 12.5");
+            Assert.NotNull(matchedRecipe1);
+            Assert.Equal(12, matchedRecipe1.MatchRate);
+
+            // Act 2: User has 3 primary ingredients -> Matched weight = 3.0. Ratio = 3.0 / 8.0 = 37.5% => rounds to 38 (even)
+            var userIngredients2 = primaryIngredients.Take(3).Select(i => i.Name).ToList();
+            var results2 = await recipeService.MatchRecipesAsync(userIngredients2);
+
+            // Assert 2: rounds up to 38
+            var matchedRecipe2 = results2.FirstOrDefault(r => r.Title == "Recipe 37.5");
+            Assert.NotNull(matchedRecipe2);
+            Assert.Equal(38, matchedRecipe2.MatchRate);
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldHandleAllSpiceRecipe()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+
+            var spice1 = new Ingredient { Id = Guid.NewGuid(), Name = "sol", IsSpiceOrStaple = true };
+            var spice2 = new Ingredient { Id = Guid.NewGuid(), Name = "pieprz", IsSpiceOrStaple = true };
+            dbContext.Ingredients.AddRange(spice1, spice2);
+
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "All Spice Recipe", Instructions = "Instructions", IsPublic = true };
+            dbContext.Recipes.Add(recipe);
+            await dbContext.SaveChangesAsync();
+
+            dbContext.RecipeIngredients.AddRange(
+                new RecipeIngredient { RecipeId = recipe.Id, IngredientId = spice1.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipe.Id, IngredientId = spice2.Id, Quantity = "1" }
+            );
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act: User has only "sol"
+            var results = await recipeService.MatchRecipesAsync(new List<string> { "sol" });
+
+            // Assert: Total weight = 0.2, Matched = 0.1 -> 50%
+            var matchedRecipe = results.FirstOrDefault(r => r.Title == "All Spice Recipe");
+            Assert.NotNull(matchedRecipe);
+            Assert.Equal(50, matchedRecipe.MatchRate);
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldExcludeZeroPercentMatches()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+
+            var pomidor = new Ingredient { Id = Guid.NewGuid(), Name = "pomidor", IsSpiceOrStaple = false };
+            var ogorek = new Ingredient { Id = Guid.NewGuid(), Name = "ogórek", IsSpiceOrStaple = false };
+            dbContext.Ingredients.AddRange(pomidor, ogorek);
+
+            var recipe = new Recipe { Id = Guid.NewGuid(), Title = "Tomato Recipe", Instructions = "Instructions", IsPublic = true };
+            dbContext.Recipes.Add(recipe);
+            await dbContext.SaveChangesAsync();
+
+            dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = recipe.Id, IngredientId = pomidor.Id, Quantity = "1" });
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act: User has only "ogorek", which is not in the recipe
+            var results = await recipeService.MatchRecipesAsync(new List<string> { "ogórek" });
+
+            // Assert: excluded from the results
+            Assert.DoesNotContain(results, r => r.Title == "Tomato Recipe");
+        }
+
+        [Fact]
+        public async Task MatchRecipes_ShouldSortByTieBreakersCorrectly()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+
+            var p1 = new Ingredient { Id = Guid.NewGuid(), Name = "p1", IsSpiceOrStaple = false };
+            var p2 = new Ingredient { Id = Guid.NewGuid(), Name = "p2", IsSpiceOrStaple = false };
+            var p3 = new Ingredient { Id = Guid.NewGuid(), Name = "p3", IsSpiceOrStaple = false };
+            var p4 = new Ingredient { Id = Guid.NewGuid(), Name = "p4", IsSpiceOrStaple = false };
+            dbContext.Ingredients.AddRange(p1, p2, p3, p4);
+
+            // Seed recipes:
+            // Alpha: p1, p2 -> Match 2/2 = 100%, 0 missing primary
+            var recipeAlpha = new Recipe { Id = Guid.NewGuid(), Title = "Recipe Alpha", Instructions = "Inst", IsPublic = true };
+            // Beta: p1, p3 -> Match 1/2 = 50%, 1 missing primary
+            var recipeBeta = new Recipe { Id = Guid.NewGuid(), Title = "Recipe Beta", Instructions = "Inst", IsPublic = true };
+            // Gamma: p1, p4 -> Match 1/2 = 50%, 1 missing primary
+            var recipeGamma = new Recipe { Id = Guid.NewGuid(), Title = "Recipe Gamma", Instructions = "Inst", IsPublic = true };
+            // Delta: p1, p2, p3 -> Match 2/3 = 67%, 1 missing primary
+            var recipeDelta = new Recipe { Id = Guid.NewGuid(), Title = "Recipe Delta", Instructions = "Inst", IsPublic = true };
+            // Epsilon: p1, p2, p3, p4 -> Match 2/4 = 50%, 2 missing primary
+            var recipeEpsilon = new Recipe { Id = Guid.NewGuid(), Title = "Recipe Epsilon", Instructions = "Inst", IsPublic = true };
+
+            dbContext.Recipes.AddRange(recipeAlpha, recipeBeta, recipeGamma, recipeDelta, recipeEpsilon);
+            await dbContext.SaveChangesAsync();
+
+            // RecipeAlpha: p1, p2
+            dbContext.RecipeIngredients.AddRange(
+                new RecipeIngredient { RecipeId = recipeAlpha.Id, IngredientId = p1.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeAlpha.Id, IngredientId = p2.Id, Quantity = "1" }
+            );
+
+            // RecipeBeta: p1, p3
+            dbContext.RecipeIngredients.AddRange(
+                new RecipeIngredient { RecipeId = recipeBeta.Id, IngredientId = p1.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeBeta.Id, IngredientId = p3.Id, Quantity = "1" }
+            );
+
+            // RecipeGamma: p1, p4
+            dbContext.RecipeIngredients.AddRange(
+                new RecipeIngredient { RecipeId = recipeGamma.Id, IngredientId = p1.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeGamma.Id, IngredientId = p4.Id, Quantity = "1" }
+            );
+
+            // RecipeDelta: p1, p2, p3
+            dbContext.RecipeIngredients.AddRange(
+                new RecipeIngredient { RecipeId = recipeDelta.Id, IngredientId = p1.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeDelta.Id, IngredientId = p2.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeDelta.Id, IngredientId = p3.Id, Quantity = "1" }
+            );
+
+            // RecipeEpsilon: p1, p2, p3, p4
+            dbContext.RecipeIngredients.AddRange(
+                new RecipeIngredient { RecipeId = recipeEpsilon.Id, IngredientId = p1.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeEpsilon.Id, IngredientId = p2.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeEpsilon.Id, IngredientId = p3.Id, Quantity = "1" },
+                new RecipeIngredient { RecipeId = recipeEpsilon.Id, IngredientId = p4.Id, Quantity = "1" }
+            );
+
+            await dbContext.SaveChangesAsync();
+
+            var recipeService = new RecipeService(dbContext);
+
+            // Act: User has "p1" and "p2"
+            var results = await recipeService.MatchRecipesAsync(new List<string> { "p1", "p2" });
+
+            // Assert sorting order:
+            // 1. Recipe Alpha (100% match, 0 missing primary)
+            // 2. Recipe Delta (67% match, 1 missing primary)
+            // 3. Recipe Beta (50% match, 1 missing primary) -> Wins tie-breaker over Epsilon (1 < 2), alphabetical over Gamma
+            // 4. Recipe Gamma (50% match, 1 missing primary)
+            // 5. Recipe Epsilon (50% match, 2 missing primary)
+            Assert.Equal(5, results.Count);
+            Assert.Equal("Recipe Alpha", results[0].Title);
+            Assert.Equal("Recipe Delta", results[1].Title);
+            Assert.Equal("Recipe Beta", results[2].Title);
+            Assert.Equal("Recipe Gamma", results[3].Title);
+            Assert.Equal("Recipe Epsilon", results[4].Title);
+        }
     }
 }

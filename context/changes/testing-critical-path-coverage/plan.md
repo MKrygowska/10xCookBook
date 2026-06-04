@@ -166,10 +166,10 @@ Add comprehensive unit tests to [RecipeServiceTests.cs](file:///c:/Users/reade/D
 
 #### Automated
 
-- [x] 2.1 Backend compiles and tests run successfully: `dotnet test`
+- [x] 2.1 Backend compiles and tests run successfully: `dotnet test` — 346de1f
 
 ### Phase 3: Match Rate Scoring & Sorting Edge Cases Unit Tests (Risk #2)
 
 #### Automated
 
-- [ ] 3.1 All unit tests pass successfully: `dotnet test`
+- [x] 3.1 All unit tests pass successfully: `dotnet test`
