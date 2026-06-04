@@ -1,7 +1,7 @@
 ---
 change_id: testing-critical-path-coverage
 title: Phase 1 test rollout — critical-path coverage for data isolation and match rate
-status: implemented
+status: impl_reviewed
 created: 2026-06-04
 updated: 2026-06-04
 archived_at: null
