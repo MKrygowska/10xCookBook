@@ -117,4 +117,4 @@ Add route configuration tests to verify `/dashboard`, `/my-recipes`, and `/setti
 ### Phase 3: Frontend Route Protection & Guard Tests
 
 #### Automated
-- [x] 3.1 Frontend tests run and pass: `npm run test`
+- [x] 3.1 Frontend tests run and pass: `npm run test` — f257159
