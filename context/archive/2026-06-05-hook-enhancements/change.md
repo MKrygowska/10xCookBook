@@ -1,10 +1,10 @@
 ---
 change_id: hook-enhancements
 title: Expand local hooks with branch guards, scoped tests, and pre-push validations
-status: complete
+status: archived
 created: 2026-06-05
 updated: 2026-06-05
-archived_at: null
+archived_at: 2026-06-05T18:02:40Z
 ---
 
 ## Notes
