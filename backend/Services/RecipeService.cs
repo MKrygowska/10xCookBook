@@ -44,12 +44,12 @@ namespace _10x_cookbook_backend.Services
             // If only spices were entered, fall back to matching any ingredient.
             var filterIds = primaryIngredientIds.Any() ? primaryIngredientIds : matchingIngredientIds;
 
-            // Fetch public and current user's private recipes with ingredients eager loaded, pre-filtered by matching ingredient IDs
             var recipes = await _dbContext.Recipes
                 .AsNoTracking()
                 .Where(r => (r.IsPublic || (userId != null && r.UserId == userId)) && r.RecipeIngredients.Any(ri => filterIds.Contains(ri.IngredientId)))
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
+                .Take(100)
                 .ToListAsync();
 
             var matchedRecipes = new List<RecipeMatchResult>();
@@ -245,8 +245,6 @@ namespace _10x_cookbook_backend.Services
             recipe.Title = request.Title.Trim();
             recipe.Instructions = request.Instructions.Trim();
 
-            recipe.RecipeIngredients.Clear();
-
             if (request.Ingredients != null && request.Ingredients.Any())
             {
                 if (request.Ingredients.Select(ri => ri.IngredientId).Distinct().Count() != request.Ingredients.Count)
@@ -265,19 +263,44 @@ namespace _10x_cookbook_backend.Services
                     throw new ValidationException("Jeden lub więcej składników jest niepoprawnych.");
                 }
 
+                // Remove ingredients that are not in the request
+                var toRemove = recipe.RecipeIngredients
+                    .Where(ri => !reqIngredientIds.Contains(ri.IngredientId))
+                    .ToList();
+                foreach (var ri in toRemove)
+                {
+                    recipe.RecipeIngredients.Remove(ri);
+                }
+
+                // Add or update ingredients
                 foreach (var reqIng in request.Ingredients)
                 {
                     if (string.IsNullOrWhiteSpace(reqIng.Quantity))
                     {
                         throw new ValidationException("Ilość składnika nie może być pusta.");
                     }
-                    recipe.RecipeIngredients.Add(new RecipeIngredient
+
+                    var existing = recipe.RecipeIngredients
+                        .FirstOrDefault(ri => ri.IngredientId == reqIng.IngredientId);
+
+                    if (existing != null)
                     {
-                        RecipeId = recipe.Id,
-                        IngredientId = reqIng.IngredientId,
-                        Quantity = reqIng.Quantity.Trim()
-                    });
+                        existing.Quantity = reqIng.Quantity.Trim();
+                    }
+                    else
+                    {
+                        recipe.RecipeIngredients.Add(new RecipeIngredient
+                        {
+                            RecipeId = recipe.Id,
+                            IngredientId = reqIng.IngredientId,
+                            Quantity = reqIng.Quantity.Trim()
+                        });
+                    }
                 }
+            }
+            else
+            {
+                recipe.RecipeIngredients.Clear();
             }
 
             await _dbContext.SaveChangesAsync();

@@ -1,7 +1,7 @@
 ---
 change_id: testing-controller-validation-layer
 title: Controller and validation layer tests
-status: implemented
+status: impl_reviewed
 created: 2026-06-05
 updated: 2026-06-05
 archived_at: null

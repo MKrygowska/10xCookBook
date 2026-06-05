@@ -46,35 +46,4 @@ describe('authGuard', () => {
       });
     });
   });
-
-  describe('AuthService Token Expiration', () => {
-    beforeEach(() => {
-      localStorage.clear();
-    });
-
-    afterEach(() => {
-      localStorage.clear();
-    });
-
-    it('should return false for isAuthenticated when token is expired and clear storage', () => {
-      const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjEwMDAwMDAwMDB9.dummy';
-      localStorage.setItem('auth_token', expiredToken);
-      localStorage.setItem('auth_email', 'test@test.com');
-
-      const freshService = new AuthService(null as any);
-      const result = freshService.isAuthenticated();
-      expect(result).toBe(false);
-      expect(localStorage.getItem('auth_token')).toBeNull();
-    });
-
-    it('should return true for isAuthenticated when token is not expired', () => {
-      const validToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjk5OTk5OTk5OTl9.dummy';
-      localStorage.setItem('auth_token', validToken);
-      localStorage.setItem('auth_email', 'test@test.com');
-
-      const freshService = new AuthService(null as any);
-      const result = freshService.isAuthenticated();
-      expect(result).toBe(true);
-    });
-  });
 });

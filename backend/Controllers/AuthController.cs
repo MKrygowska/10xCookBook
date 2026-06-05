@@ -18,6 +18,10 @@ namespace _10x_cookbook_backend.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest(new { error = "Żądanie nie może być puste." });
+            }
 
             var user = _userService.Register(request.Email, request.Password, out var errorMessage);
             if (user == null)
@@ -32,6 +36,10 @@ namespace _10x_cookbook_backend.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest(new { error = "Żądanie nie może być puste." });
+            }
 
             var token = _userService.Login(request.Email, request.Password, out var errorMessage);
             if (token == null)

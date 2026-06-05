@@ -37,7 +37,9 @@ export class AuthService {
   }
 
   deleteAccount(): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/me`);
+    return this.http.delete<void>(`${this.apiUrl}/users/me`).pipe(
+      tap(() => this.logout())
+    );
   }
 
   isAuthenticated(): boolean {
@@ -51,7 +53,10 @@ export class AuthService {
       this.logout();
       return false;
     }
-    return this.isAuthenticatedSubject.value;
+    if (!this.isAuthenticatedSubject.value) {
+      this.isAuthenticatedSubject.next(true);
+    }
+    return true;
   }
 
   getCurrentUserEmail(): string | null {
@@ -64,7 +69,9 @@ export class AuthService {
       if (parts.length !== 3) {
         return true;
       }
-      const payload = JSON.parse(atob(parts[1]));
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+      const payload = JSON.parse(atob(padded));
       if (payload && typeof payload.exp === 'number') {
         const expiryDate = payload.exp * 1000;
         return expiryDate < Date.now();
