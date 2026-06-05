@@ -107,12 +107,12 @@ Add route configuration tests to verify `/dashboard`, `/my-recipes`, and `/setti
 ### Phase 1: Backend Validation & Error Cleanup
 
 #### Automated
-- [x] 1.1 Backend compiles cleanly: `dotnet build`
+- [x] 1.1 Backend compiles cleanly: `dotnet build` — 0a1a0d3
 
 ### Phase 2: Integration Tests for Validation
 
 #### Automated
-- [ ] 2.1 Backend tests run and pass: `dotnet test`
+- [x] 2.1 Backend tests run and pass: `dotnet test`
 
 ### Phase 3: Frontend Route Protection & Guard Tests
 
