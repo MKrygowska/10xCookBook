@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { authGuard } from './auth.guard';
 import { AuthService } from '../services/auth.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { routes } from '../app.routes';
 
 describe('authGuard', () => {
   let authService: AuthService;
@@ -32,5 +33,17 @@ describe('authGuard', () => {
     const result = TestBed.runInInjectionContext(() => authGuard({} as any, {} as any));
     expect(result).toBe(false);
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  describe('Route Guard Configuration', () => {
+    it('should protect /dashboard, /my-recipes, and /settings routes with authGuard', () => {
+      const protectedPaths = ['dashboard', 'my-recipes', 'settings'];
+      
+      protectedPaths.forEach(path => {
+        const route = routes.find(r => r.path === path);
+        expect(route).toBeDefined();
+        expect(route?.canActivate).toContain(authGuard);
+      });
+    });
   });
 });

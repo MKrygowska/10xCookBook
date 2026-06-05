@@ -7,16 +7,20 @@ using _10x_cookbook_backend.DTOs;
 using _10x_cookbook_backend.Exceptions;
 using _10x_cookbook_backend.Services;
 
+using Microsoft.Extensions.Logging;
+
 namespace _10x_cookbook_backend.Controllers
 {
     [Authorize]
     public class RecipesController : BaseApiController
     {
         private readonly RecipeService _recipeService;
+        private readonly ILogger<RecipesController> _logger;
 
-        public RecipesController(RecipeService recipeService)
+        public RecipesController(RecipeService recipeService, ILogger<RecipesController> logger)
         {
             _recipeService = recipeService;
+            _logger = logger;
         }
 
         [HttpPost("match")]
@@ -47,7 +51,8 @@ namespace _10x_cookbook_backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Unexpected error in GetMyRecipes");
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
 
@@ -70,7 +75,8 @@ namespace _10x_cookbook_backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Unexpected error in CreateRecipe");
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
 
@@ -101,7 +107,8 @@ namespace _10x_cookbook_backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Unexpected error in UpdateRecipe");
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
 
@@ -128,7 +135,8 @@ namespace _10x_cookbook_backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message });
+                _logger.LogError(ex, "Unexpected error in DeleteRecipe");
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
     }
