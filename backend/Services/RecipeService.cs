@@ -186,6 +186,10 @@ namespace _10x_cookbook_backend.Services
 
                 foreach (var reqIng in request.Ingredients)
                 {
+                    if (string.IsNullOrWhiteSpace(reqIng.Quantity))
+                    {
+                        throw new ValidationException("Ilość składnika nie może być pusta.");
+                    }
                     recipe.RecipeIngredients.Add(new RecipeIngredient
                     {
                         RecipeId = recipe.Id,
@@ -263,6 +267,10 @@ namespace _10x_cookbook_backend.Services
 
                 foreach (var reqIng in request.Ingredients)
                 {
+                    if (string.IsNullOrWhiteSpace(reqIng.Quantity))
+                    {
+                        throw new ValidationException("Ilość składnika nie może być pusta.");
+                    }
                     recipe.RecipeIngredients.Add(new RecipeIngredient
                     {
                         RecipeId = recipe.Id,

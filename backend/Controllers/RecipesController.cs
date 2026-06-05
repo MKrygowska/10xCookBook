@@ -68,9 +68,9 @@ namespace _10x_cookbook_backend.Controllers
             {
                 return BadRequest(new { error = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
 
@@ -99,9 +99,9 @@ namespace _10x_cookbook_backend.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
 
@@ -126,9 +126,9 @@ namespace _10x_cookbook_backend.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = "Wystąpił nieoczekiwany błąd." });
             }
         }
     }

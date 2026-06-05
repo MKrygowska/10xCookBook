@@ -11,12 +11,14 @@ namespace _10x_cookbook_backend.DTOs
 
     public record RecipeIngredientRequest(
         Guid IngredientId, 
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Ilość jest wymagana.")]
+        [MaxLength(100, ErrorMessage = "Ilość nie może przekraczać 100 znaków.")]
         string Quantity
     );
 
     public record CreateRecipeRequest(
         [Required(ErrorMessage = "Tytuł jest wymagany.")]
+        [MaxLength(200, ErrorMessage = "Tytuł nie może przekraczać 200 znaków.")]
         string Title, 
         
         [Required(ErrorMessage = "Instrukcje są wymagane.")]
@@ -27,6 +29,7 @@ namespace _10x_cookbook_backend.DTOs
 
     public record UpdateRecipeRequest(
         [Required(ErrorMessage = "Tytuł jest wymagany.")]
+        [MaxLength(200, ErrorMessage = "Tytuł nie może przekraczać 200 znaków.")]
         string Title, 
         
         [Required(ErrorMessage = "Instrukcje są wymagane.")]
