@@ -81,7 +81,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|---|---|---|---|---|---|
 | 1 | Critical-path coverage | Prove data isolation and match rate correctness at cheapest layer | #1, #2 | unit + integration (xUnit, in-memory DB) | complete | context/archive/2026-06-04-testing-critical-path-coverage/ |
 | 2 | Controller & validation layer | Prove server-side validation parity and auth guard correctness | #3, #4 | integration (ASP.NET Core TestServer) + unit (Angular TestBed) | complete | context/archive/2026-06-05-testing-controller-validation-layer/ |
-| 3 | GDPR & content coverage | Prove account deletion cascades correctly; surface ingredient catalog gaps | #5, #6 | integration + manual smoke | researched | context/changes/testing-gdpr-content-coverage/ |
+| 3 | GDPR & content coverage | Prove account deletion cascades correctly; surface ingredient catalog gaps | #5, #6 | integration + manual smoke | complete | context/changes/testing-gdpr-content-coverage/ |
 | 4 | Quality gates wiring | Lock lint + typecheck + unit/integration gates in CI | cross-cutting | CI gates | not started | — |
 
 **Status vocabulary** (fixed — parser literals):
@@ -172,11 +172,19 @@ To verify frontend route guards or services:
 
 ### 6.4 Adding a GDPR / cascade-delete integration test
 
-TBD — see §3 Phase 3 for account deletion and cascade verification patterns.
+To verify that deleting a user account cascades to delete their private recipes:
+1. **Change Tracker Eagerness**: In-memory database providers (like `Microsoft.EntityFrameworkCore.InMemory`) do not enforce foreign key cascade constraints at the database level. EF Core simulates cascades client-side, but only for loaded/tracked entities. Therefore, the user deletion service method must eagerly load the navigation collections (e.g., `.Include(u => u.Recipes)`) before invoking `Remove(user)`.
+2. **Setup**: Seed a user and an associated private recipe (with `UserId` set to that user's ID) in the database.
+3. **Execution & Assertion**: Invoke `DeleteUser` and assert that:
+   - The user record is null/deleted.
+   - The private recipe record is null/deleted.
 
 ### 6.5 Verifying ingredient catalog coverage
 
-TBD — see §3 Phase 3 for content smoke pattern.
+To verify that the database seed data is correct and covers required culinary items without brittle exact matching:
+1. **Ensure Seeding**: Since in-memory databases do not run migrations, invoke `dbContext.Database.EnsureCreated()` during test setup. This forces EF Core to run model seeding defined in `OnModelCreating`.
+2. **Broad Count Check**: Assert that the total count of ingredients in the database matches or exceeds the expected catalog threshold (e.g., `>= 40`).
+3. **Staple Ingredients Check**: Project the ingredients list to a list of lowercase names and assert that key Polish staples (e.g., `twaróg`, `kiełbasa`, `kapusta kiszona`, `ogórek kiszony`, `schab`, `śmietana`, `burak`) are present. This ensures catalog completeness while allowing future additions to be made without breaking existing assertions.
 
 ---
 
