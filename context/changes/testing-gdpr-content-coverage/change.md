@@ -1,7 +1,7 @@
 ---
 change_id: testing-gdpr-content-coverage
 title: GDPR and content coverage tests
-status: new
+status: complete
 created: 2026-06-05
 updated: 2026-06-05
 archived_at: null
