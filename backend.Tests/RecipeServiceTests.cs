@@ -158,11 +158,11 @@ namespace _10x_cookbook_backend.Tests
         {
             // Arrange
             using var dbContext = CreateInMemoryDbContext();
-            
+
             // Seed ingredients
             var kurczak = new Ingredient { Id = Guid.NewGuid(), Name = "kurczak", IsSpiceOrStaple = false };
             dbContext.Ingredients.Add(kurczak);
-            
+
             // Seed a public recipe
             var publicRecipe = new Recipe { Id = Guid.NewGuid(), Title = "Publiczny Kurczak", IsPublic = true };
             dbContext.Recipes.Add(publicRecipe);
@@ -175,7 +175,7 @@ namespace _10x_cookbook_backend.Tests
             dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = privateRecipe.Id, IngredientId = kurczak.Id, Quantity = "200g" });
 
             dbContext.SaveChanges();
-            
+
             var recipeService = new RecipeService(dbContext);
 
             // Act
@@ -196,11 +196,11 @@ namespace _10x_cookbook_backend.Tests
         {
             // Arrange
             using var dbContext = CreateInMemoryDbContext();
-            
+
             // Seed ingredients
             var kurczak = new Ingredient { Id = Guid.NewGuid(), Name = "kurczak", IsSpiceOrStaple = false };
             dbContext.Ingredients.Add(kurczak);
-            
+
             // Seed a private recipe belonging to user A
             var userAId = Guid.NewGuid();
             var privateRecipeA = new Recipe { Id = Guid.NewGuid(), Title = "Kurczak Użytkownika A", IsPublic = false, UserId = userAId };
@@ -214,7 +214,7 @@ namespace _10x_cookbook_backend.Tests
             dbContext.RecipeIngredients.Add(new RecipeIngredient { RecipeId = privateRecipeB.Id, IngredientId = kurczak.Id, Quantity = "200g" });
 
             dbContext.SaveChanges();
-            
+
             var recipeService = new RecipeService(dbContext);
 
             // Act: user A searches

@@ -56,7 +56,7 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             userService.Register("duplicate@test.com", "Password123!", out _);
 
             // Act
@@ -74,7 +74,7 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             userService.Register("login@test.com", "SecretPassword!", out _);
 
             // Act
@@ -93,7 +93,7 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             userService.Register("login@test.com", "SecretPassword!", out _);
 
             // Act
@@ -127,7 +127,7 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             var user = userService.Register("loginactive@test.com", "Password123!", out _);
             var initialLastActive = user!.LastActive.AddHours(-1);
             user.LastActive = initialLastActive;
@@ -150,7 +150,7 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             var user = userService.Register("activity@test.com", "Password123!", out _);
             var initialLastActive = user!.LastActive.AddHours(-1);
             user.LastActive = initialLastActive;
@@ -173,7 +173,7 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             var user = userService.Register("delete@test.com", "Password123!", out _);
 
             // Act
@@ -192,9 +192,9 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             var user = userService.Register("delete_cascade@test.com", "Password123!", out _);
-            
+
             var recipe = new _10x_cookbook_backend.Models.Recipe
             {
                 Id = Guid.NewGuid(),
@@ -223,10 +223,10 @@ namespace _10x_cookbook_backend.Tests
             using var dbContext = CreateInMemoryDbContext();
             var config = CreateMockConfiguration();
             var userService = new UserService(dbContext, config);
-            
+
             // Create active user
             var activeUser = userService.Register("active_retention@test.com", "Password123!", out _);
-            
+
             // Create inactive user
             var inactiveUser = userService.Register("inactive_retention@test.com", "Password123!", out _);
             inactiveUser!.LastActive = DateTime.UtcNow.AddMonths(-25);
@@ -254,10 +254,10 @@ namespace _10x_cookbook_backend.Tests
             // Start the service in a background task and stop it shortly after
             var cts = new CancellationTokenSource();
             var runTask = retentionService.StartAsync(cts.Token);
-            
+
             // Wait slightly for execution of first run loop
             await Task.Delay(200);
-            
+
             // Trigger cancellation to stop background service loop
             cts.Cancel();
             await runTask;
