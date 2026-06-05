@@ -163,14 +163,14 @@ Update the stateful test rollout plan and document the testing patterns for casc
 ### Phase 1: Backend Service Updates & Migration
 
 #### Automated
-- [ ] 1.1 Backend compiles cleanly: `dotnet build`
+- [x] 1.1 Backend compiles cleanly: `dotnet build` — 811bf7c
 
 ### Phase 2: Automated Tests
 
 #### Automated
-- [ ] 2.1 Backend tests run and pass: `dotnet test`
+- [x] 2.1 Backend tests run and pass: `dotnet test` — 811bf7c
 
 ### Phase 3: Cookbook Sync
 
 #### Automated
-- [ ] 3.1 Test plan marked complete and cookbook sections updated
+- [x] 3.1 Test plan marked complete and cookbook sections updated — a20a77b
