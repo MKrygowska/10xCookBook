@@ -18,10 +18,9 @@ namespace _10x_cookbook_backend.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
-            if (!ModelState.IsValid)
+            if (request == null)
             {
-                var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return BadRequest(new { error = firstError ?? "Błąd walidacji." });
+                return BadRequest(new { error = "Żądanie nie może być puste." });
             }
 
             var user = _userService.Register(request.Email, request.Password, out var errorMessage);
@@ -37,10 +36,9 @@ namespace _10x_cookbook_backend.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
-            if (!ModelState.IsValid)
+            if (request == null)
             {
-                var firstError = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
-                return BadRequest(new { error = firstError ?? "Błąd walidacji." });
+                return BadRequest(new { error = "Żądanie nie może być puste." });
             }
 
             var token = _userService.Login(request.Email, request.Password, out var errorMessage);

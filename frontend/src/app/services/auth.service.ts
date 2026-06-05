@@ -37,19 +37,57 @@ export class AuthService {
   }
 
   deleteAccount(): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/me`);
+    return this.http.delete<void>(`${this.apiUrl}/users/me`).pipe(
+      tap(() => this.logout())
+    );
   }
 
   isAuthenticated(): boolean {
-    return this.isAuthenticatedSubject.value;
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) {
+      this.isAuthenticatedSubject.next(false);
+      return false;
+    }
+    const isExpired = this.isTokenExpired(token);
+    if (isExpired) {
+      this.logout();
+      return false;
+    }
+    if (!this.isAuthenticatedSubject.value) {
+      this.isAuthenticatedSubject.next(true);
+    }
+    return true;
   }
 
   getCurrentUserEmail(): string | null {
     return localStorage.getItem(this.emailKey);
   }
 
+  private isTokenExpired(token: string): boolean {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return true;
+      }
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+      const payload = JSON.parse(atob(padded));
+      if (payload && typeof payload.exp === 'number') {
+        const expiryDate = payload.exp * 1000;
+        return expiryDate < Date.now();
+      }
+      return false;
+    } catch {
+      return true;
+    }
+  }
+
   private hasToken(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) {
+      return false;
+    }
+    return !this.isTokenExpired(token);
   }
 
   private handleAuthSuccess(res: any): void {
