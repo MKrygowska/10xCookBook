@@ -1,10 +1,10 @@
 ---
 change_id: local-hooks-configuration
 title: Configure per-edit and pre-commit local quality hooks
-status: implemented
+status: archived
 created: 2026-06-05
 updated: 2026-06-05
-archived_at: null
+archived_at: 2026-06-05T19:50:00Z
 ---
 
 ## Notes
