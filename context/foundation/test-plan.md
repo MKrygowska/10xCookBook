@@ -136,6 +136,10 @@ phase lands; before that, the gate is `planned`.
 | unit + integration (frontend) | local + CI | required after §3 Phase 2 | auth guard and component regressions |
 | CI gate wiring (GitHub Actions) | CI on push to `main` | required after §3 Phase 4 | catches all of the above before merge |
 
+Local quality layers are configured as follows:
+- **Per-edit Hook**: Executed on file write/edit tools. Runs [lint-hook.ps1](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/lint-hook.ps1) (configured in [.claude/settings.json](file:///c:/Users/reade/Documents/10xDev%20Project/.claude/settings.json)) to run `dotnet format` on modified C# files and `npx tsc --noEmit` on TypeScript files.
+- **Pre-commit Git Hook**: Runs Solution formatting and frontend typecheck via [lefthook.yml](file:///c:/Users/reade/Documents/10xDev%20Project/lefthook.yml) on staged files prior to commit.
+
 ---
 
 ## 6. Cookbook Patterns
