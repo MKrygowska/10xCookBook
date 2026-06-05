@@ -1,0 +1,11 @@
+# Lefthook pre-commit configuration
+# https://github.com/evilmartians/lefthook
+
+pre-commit:
+  commands:
+    backend-format:
+      glob: "backend/**/*.cs"
+      run: dotnet format 10xCookBook.sln --include {staged_files} --verify-no-changes --no-restore
+    frontend-typecheck:
+      glob: "frontend/**/*.ts"
+      run: cd frontend && npx tsc --noEmit -p tsconfig.app.json
