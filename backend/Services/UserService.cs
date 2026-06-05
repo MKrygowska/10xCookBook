@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using _10x_cookbook_backend.Data;
 using _10x_cookbook_backend.Models;
@@ -121,7 +122,9 @@ namespace _10x_cookbook_backend.Services
         public bool DeleteUser(Guid userId, out string errorMessage)
         {
             errorMessage = string.Empty;
-            var user = _dbContext.Users.Find(userId);
+            var user = _dbContext.Users
+                .Include(u => u.Recipes)
+                .FirstOrDefault(u => u.Id == userId);
             if (user == null)
             {
                 errorMessage = "Użytkownik nie istnieje.";

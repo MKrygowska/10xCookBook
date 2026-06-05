@@ -47,7 +47,7 @@ namespace _10x_cookbook_backend.Data
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            // Seed Ingredients (20 znormalizowanych, popularnych składników - lowercase, trimmed)
+            // Seed Ingredients (40 znormalizowanych, popularnych składników - lowercase, trimmed)
             var ingredients = new List<Ingredient>
             {
                 new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711001"), Name = "pomidor", IsSpiceOrStaple = false },
@@ -69,7 +69,27 @@ namespace _10x_cookbook_backend.Data
                 new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711017"), Name = "ser żółty", IsSpiceOrStaple = false },
                 new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711018"), Name = "papryka słodka", IsSpiceOrStaple = true },
                 new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711019"), Name = "cukier", IsSpiceOrStaple = true },
-                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711020"), Name = "cytryna", IsSpiceOrStaple = false }
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711020"), Name = "cytryna", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711021"), Name = "twaróg", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711022"), Name = "kiełbasa", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711023"), Name = "kapusta kiszona", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711024"), Name = "ogórek kiszony", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711025"), Name = "schab", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711026"), Name = "śmietana", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711027"), Name = "koperek", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711028"), Name = "natka pietruszki", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711029"), Name = "majeranek", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711030"), Name = "liść laurowy", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711031"), Name = "ziele angielskie", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711032"), Name = "olej rzepakowy", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711033"), Name = "kasza gryczana", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711034"), Name = "bułka tarta", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711035"), Name = "burak", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711036"), Name = "pieczarki", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711037"), Name = "boczek wędzony", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711038"), Name = "chrzan", IsSpiceOrStaple = true },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711039"), Name = "korzeń pietruszki", IsSpiceOrStaple = false },
+                new() { Id = Guid.Parse("4d4d1011-25ef-4573-82ef-dcf1db711040"), Name = "seler", IsSpiceOrStaple = false }
             };
 
             modelBuilder.Entity<Ingredient>().HasData(ingredients);

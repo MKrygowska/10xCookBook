@@ -186,6 +186,37 @@ namespace _10x_cookbook_backend.Tests
         }
 
         [Fact]
+        public void DeleteUser_ShouldCascadeDeletePrivateRecipes()
+        {
+            // Arrange
+            using var dbContext = CreateInMemoryDbContext();
+            var config = CreateMockConfiguration();
+            var userService = new UserService(dbContext, config);
+            
+            var user = userService.Register("delete_cascade@test.com", "Password123!", out _);
+            
+            var recipe = new _10x_cookbook_backend.Models.Recipe
+            {
+                Id = Guid.NewGuid(),
+                Title = "Prywatny przepis testowy",
+                Instructions = "Krok 1, Krok 2...",
+                IsPublic = false,
+                UserId = user!.Id
+            };
+            dbContext.Recipes.Add(recipe);
+            dbContext.SaveChanges();
+
+            // Act
+            var success = userService.DeleteUser(user.Id, out string errorMessage);
+
+            // Assert
+            Assert.True(success);
+            Assert.Empty(errorMessage);
+            Assert.Null(dbContext.Users.Find(user.Id));
+            Assert.Null(dbContext.Recipes.Find(recipe.Id));
+        }
+
+        [Fact]
         public async Task DataRetentionService_ShouldPurgeInactiveUsers()
         {
             // Arrange
