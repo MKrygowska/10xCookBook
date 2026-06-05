@@ -41,6 +41,16 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) {
+      this.isAuthenticatedSubject.next(false);
+      return false;
+    }
+    const isExpired = this.isTokenExpired(token);
+    if (isExpired) {
+      this.logout();
+      return false;
+    }
     return this.isAuthenticatedSubject.value;
   }
 
@@ -48,8 +58,29 @@ export class AuthService {
     return localStorage.getItem(this.emailKey);
   }
 
+  private isTokenExpired(token: string): boolean {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return true;
+      }
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload && typeof payload.exp === 'number') {
+        const expiryDate = payload.exp * 1000;
+        return expiryDate < Date.now();
+      }
+      return false;
+    } catch {
+      return true;
+    }
+  }
+
   private hasToken(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    if (!token) {
+      return false;
+    }
+    return !this.isTokenExpired(token);
   }
 
   private handleAuthSuccess(res: any): void {

@@ -112,9 +112,9 @@ Add route configuration tests to verify `/dashboard`, `/my-recipes`, and `/setti
 ### Phase 2: Integration Tests for Validation
 
 #### Automated
-- [x] 2.1 Backend tests run and pass: `dotnet test`
+- [x] 2.1 Backend tests run and pass: `dotnet test` — d4a9f5f
 
 ### Phase 3: Frontend Route Protection & Guard Tests
 
 #### Automated
-- [ ] 3.1 Frontend tests run and pass: `npm run test`
+- [x] 3.1 Frontend tests run and pass: `npm run test`
