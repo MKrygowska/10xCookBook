@@ -193,7 +193,8 @@ Bieżący stan kodu zweryfikowany automatycznie na dzień 2026-05-25. Fundamenty
 
 ## Otwarte pytania
 
-1. **Brak konfiguracji sekretów repozytorium GitHub** — Kto skonfiguruje dane uwierzytelniające w GitHub Secrets do wdrożenia na Azure? — Właściciel: Użytkownik. Blok: nie (blokuje tylko tor CI/CD, nie wstrzymuje prac programistycznych).
+1. ~~**Brak konfiguracji sekretów repozytorium GitHub** — Kto skonfiguruje dane uwierzytelniające w GitHub Secrets do wdrożenia na Azure? — Właściciel: Użytkownik. Blok: nie (blokuje tylko tor CI/CD, nie wstrzymuje prac programistycznych).~~ ✅ Rozwiązane 2026-05-29 — skonfigurowane ręcznie przez właściciela projektu.
+2. **Usunąć lub zabezpieczyć endpoint `/api/health`** — Dodany w trakcie debugowania wdrożenia Azure (2026-05-29). Ujawnia informacje o infrastrukturze (status DB, długość JWT secret, środowisko). Należy usunąć lub przepiąć pod autoryzację przed publicznym udostępnieniem aplikacji. — Właściciel: deweloper. Blok: nie.
 
 ## Zaparkowane
 

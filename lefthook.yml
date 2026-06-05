@@ -3,9 +3,19 @@
 
 pre-commit:
   commands:
+    branch-guard:
+      run: if [ $(git branch --show-current) = 'main' ]; then echo '[Reverted] Committing directly to main is forbidden. Switch to a feature branch.'; exit 1; fi
     backend-format:
       glob: "backend/**/*.cs"
       run: dotnet format 10xCookBook.sln --include {staged_files} --verify-no-changes --no-restore
     frontend-typecheck:
       glob: "frontend/**/*.ts"
       run: cd frontend && npx tsc --noEmit -p tsconfig.app.json
+
+pre-push:
+  commands:
+    backend-build-test:
+      run: dotnet restore 10xCookBook.sln && dotnet build 10xCookBook.sln --configuration Release --no-restore && dotnet test 10xCookBook.sln --configuration Release --no-build
+    frontend-build:
+      run: cd frontend && npm run build
+

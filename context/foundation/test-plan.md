@@ -137,8 +137,10 @@ phase lands; before that, the gate is `planned`.
 | CI gate wiring (GitHub Actions) | CI on push to `main` | required after §3 Phase 4 | catches all of the above before merge |
 
 Local quality layers are configured as follows:
-- **Per-edit Hook**: Executed on file write/edit tools. Runs [lint-hook.ps1](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/lint-hook.ps1) (configured in [.claude/settings.json](file:///c:/Users/reade/Documents/10xDev%20Project/.claude/settings.json)) to run `dotnet format` on modified C# files and `npx tsc --noEmit` on TypeScript files.
-- **Pre-commit Git Hook**: Runs Solution formatting and frontend typecheck via [lefthook.yml](file:///c:/Users/reade/Documents/10xDev%20Project/lefthook.yml) on staged files prior to commit.
+- **Per-edit Hook**: Executed on file write/edit tools. Runs [lint-hook.ps1](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/lint-hook.ps1) (configured in [.claude/settings.json](file:///c:/Users/reade/Documents/10xDev%20Project/.claude/settings.json)) to run `dotnet format` on modified C# files (including scoped unit tests if risk services are edited) and `npx tsc --noEmit` on TypeScript files (including scoped Angular unit tests if risk guards/services are edited).
+- **Pre-commit Git Hook**: Runs branch-guard check (to prevent direct commits to `main`), solution formatting on C# files, and frontend typechecking on TS files via [lefthook.yml](file:///c:/Users/reade/Documents/10xDev%20Project/lefthook.yml) on staged files prior to commit.
+- **Pre-push Git Hook**: Runs full restore, compile, C# test execution, and frontend build via [lefthook.yml](file:///c:/Users/reade/Documents/10xDev%20Project/lefthook.yml) to ensure local stability before remote pushes.
+
 
 ---
 
