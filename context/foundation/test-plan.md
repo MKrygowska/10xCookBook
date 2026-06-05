@@ -81,7 +81,7 @@ orchestrator updates Status as artifacts appear on disk.
 |---|---|---|---|---|---|---|
 | 1 | Critical-path coverage | Prove data isolation and match rate correctness at cheapest layer | #1, #2 | unit + integration (xUnit, in-memory DB) | complete | context/archive/2026-06-04-testing-critical-path-coverage/ |
 | 2 | Controller & validation layer | Prove server-side validation parity and auth guard correctness | #3, #4 | integration (ASP.NET Core TestServer) + unit (Angular TestBed) | complete | context/archive/2026-06-05-testing-controller-validation-layer/ |
-| 3 | GDPR & content coverage | Prove account deletion cascades correctly; surface ingredient catalog gaps | #5, #6 | integration + manual smoke | not started | — |
+| 3 | GDPR & content coverage | Prove account deletion cascades correctly; surface ingredient catalog gaps | #5, #6 | integration + manual smoke | change opened | context/changes/testing-gdpr-content-coverage/ |
 | 4 | Quality gates wiring | Lock lint + typecheck + unit/integration gates in CI | cross-cutting | CI gates | not started | — |
 
 **Status vocabulary** (fixed — parser literals):
