@@ -6,10 +6,18 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'backend.Tests/**'
+      - '.github/workflows/deploy-backend.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - 'backend.Tests/**'
       - '.github/workflows/deploy-backend.yml'
 
 jobs:
-  build-and-deploy:
+  build-test-format:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,12 +27,25 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Build and Publish Backend
-        run: |
-          dotnet publish -c Release -o ./myapp
+      - name: Restore Solution Dependencies
+        run: dotnet restore 10xCookBook.sln
+
+      - name: Verify Code Formatting
+        run: dotnet format 10xCookBook.sln --verify-no-changes --no-restore
+
+      - name: Build Solution (Release Configuration)
+        run: dotnet build 10xCookBook.sln --configuration Release --no-restore
+
+      - name: Run Backend Tests
+        run: dotnet test 10xCookBook.sln --configuration Release --no-build
+
+      - name: Publish Backend
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: dotnet publish -c Release -o ./myapp
         working-directory: backend
 
       - name: Deploy to Azure Web App
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'cookbook-api-unique'

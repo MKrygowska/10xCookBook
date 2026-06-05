@@ -48,7 +48,7 @@ namespace _10x_cookbook_backend.Services
                     {
                         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                         var cutoff = DateTime.UtcNow.AddMonths(-retentionMonths);
-                        
+
                         if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
                         {
                             var inactiveUsers = dbContext.Users

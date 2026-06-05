@@ -17,7 +17,7 @@ namespace _10x_cookbook_backend.Models
         public bool IsPublic { get; set; }
 
         public Guid? UserId { get; set; }
-        
+
         [JsonIgnore]
         public User? User { get; set; }
 
