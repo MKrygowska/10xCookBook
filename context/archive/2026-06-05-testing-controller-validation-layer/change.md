@@ -1,10 +1,10 @@
 ---
 change_id: testing-controller-validation-layer
 title: Controller and validation layer tests
-status: implemented
+status: archived
 created: 2026-06-05
 updated: 2026-06-05
-archived_at: null
+archived_at: 2026-06-05T10:02:00Z
 ---
 
 ## Notes
