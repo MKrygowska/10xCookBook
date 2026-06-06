@@ -15,7 +15,7 @@ on:
       - 'frontend/**'
 
 jobs:
-  build_and_deploy:
+  test:
     if: github.event_action != 'closed'
     runs-on: windows-latest
     steps:
@@ -55,6 +55,16 @@ jobs:
       - name: Run E2E Tests
         run: npx playwright test
         working-directory: frontend
+
+  build_and_deploy:
+    if: github.event_action != 'closed'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
 
       - name: Build And Deploy
         uses: Azure/static-web-apps-deploy@v1
