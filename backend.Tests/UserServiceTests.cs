@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using _10x_cookbook_backend.Data;
 using _10x_cookbook_backend.Services;
+using _10x_cookbook_backend.Models;
 
 namespace _10x_cookbook_backend.Tests
 {
@@ -195,7 +196,7 @@ namespace _10x_cookbook_backend.Tests
 
             var user = userService.Register("delete_cascade@test.com", "Password123!", out _);
 
-            var recipe = new _10x_cookbook_backend.Models.Recipe
+            var recipe = new Recipe
             {
                 Id = Guid.NewGuid(),
                 Title = "Prywatny przepis testowy",
@@ -204,7 +205,24 @@ namespace _10x_cookbook_backend.Tests
                 UserId = user!.Id
             };
             dbContext.Recipes.Add(recipe);
+
+            var ingredient = new Ingredient
+            {
+                Id = Guid.NewGuid(),
+                Name = "Sól",
+                IsSpiceOrStaple = true
+            };
+            dbContext.Ingredients.Add(ingredient);
+
+            var recipeIngredient = new RecipeIngredient
+            {
+                RecipeId = recipe.Id,
+                IngredientId = ingredient.Id,
+                Quantity = "szczypta"
+            };
+            dbContext.RecipeIngredients.Add(recipeIngredient);
             dbContext.SaveChanges();
+            dbContext.ChangeTracker.Clear();
 
             // Act
             var success = userService.DeleteUser(user.Id, out string errorMessage);
@@ -214,6 +232,7 @@ namespace _10x_cookbook_backend.Tests
             Assert.Empty(errorMessage);
             Assert.Null(dbContext.Users.Find(user.Id));
             Assert.Null(dbContext.Recipes.Find(recipe.Id));
+            Assert.Null(dbContext.RecipeIngredients.Find(recipe.Id, ingredient.Id));
         }
 
         [Fact]
@@ -230,7 +249,34 @@ namespace _10x_cookbook_backend.Tests
             // Create inactive user
             var inactiveUser = userService.Register("inactive_retention@test.com", "Password123!", out _);
             inactiveUser!.LastActive = DateTime.UtcNow.AddMonths(-25);
+
+            var recipe = new Recipe
+            {
+                Id = Guid.NewGuid(),
+                Title = "Prywatny przepis przedawniony",
+                Instructions = "Krok 1...",
+                IsPublic = false,
+                UserId = inactiveUser.Id
+            };
+            dbContext.Recipes.Add(recipe);
+
+            var ingredient = new Ingredient
+            {
+                Id = Guid.NewGuid(),
+                Name = "Cebula",
+                IsSpiceOrStaple = true
+            };
+            dbContext.Ingredients.Add(ingredient);
+
+            var recipeIngredient = new RecipeIngredient
+            {
+                RecipeId = recipe.Id,
+                IngredientId = ingredient.Id,
+                Quantity = "1 sztuka"
+            };
+            dbContext.RecipeIngredients.Add(recipeIngredient);
             dbContext.SaveChanges();
+            dbContext.ChangeTracker.Clear();
 
             // Setup DataRetentionService configuration
             var inMemorySettings = new Dictionary<string, string?> {
@@ -265,6 +311,8 @@ namespace _10x_cookbook_backend.Tests
             // Assert
             Assert.NotNull(dbContext.Users.AsNoTracking().FirstOrDefault(u => u.Id == activeUser!.Id));
             Assert.Null(dbContext.Users.AsNoTracking().FirstOrDefault(u => u.Id == inactiveUser.Id));
+            Assert.Null(dbContext.Recipes.AsNoTracking().FirstOrDefault(r => r.Id == recipe.Id));
+            Assert.Null(dbContext.RecipeIngredients.AsNoTracking().FirstOrDefault(ri => ri.RecipeId == recipe.Id && ri.IngredientId == ingredient.Id));
         }
 
         private class MockServiceScopeFactory : IServiceScopeFactory

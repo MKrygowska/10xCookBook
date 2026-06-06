@@ -52,6 +52,8 @@ namespace _10x_cookbook_backend.Services
                         if (dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.InMemory")
                         {
                             var inactiveUsers = dbContext.Users
+                                .Include(u => u.Recipes)
+                                    .ThenInclude(r => r.RecipeIngredients)
                                 .Where(u => u.LastActive < cutoff)
                                 .ToList();
 

@@ -124,6 +124,7 @@ namespace _10x_cookbook_backend.Services
             errorMessage = string.Empty;
             var user = _dbContext.Users
                 .Include(u => u.Recipes)
+                    .ThenInclude(r => r.RecipeIngredients)
                 .FirstOrDefault(u => u.Id == userId);
             if (user == null)
             {
