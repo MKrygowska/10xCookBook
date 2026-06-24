@@ -1,0 +1,114 @@
+name: "Gemini AI Code Review"
+description: "Executes automatic code review on pull request diff using Gemini 3.1 Flash-Lite"
+inputs:
+  pr-number:
+    description: "The number of the Pull Request"
+    required: true
+  pr-title:
+    description: "The title of the Pull Request"
+    required: true
+  pr-description:
+    description: "The description of the Pull Request"
+    required: false
+  gemini-api-key:
+    description: "Google Gemini API Key"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Fetch PR diff
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        echo "[INFO] Pobieranie diffa dla PR #${{ inputs.pr-number }}..."
+        gh pr diff ${{ inputs.pr-number }} > pr.diff
+
+    - name: Run code review script
+      shell: bash
+      env:
+        GEMINI_API_KEY: ${{ inputs.gemini-api-key }}
+        PR_TITLE: ${{ inputs.pr-title }}
+        PR_DESCRIPTION: ${{ inputs.pr-description }}
+      run: |
+        echo "[INFO] Uruchamianie analizy kodu przez Gemini API..."
+        cat pr.diff | npx tsx scripts/review-gemini.ts > review_output.json
+        cat review_output.json
+
+    - name: Parse results and generate comment
+      shell: bash
+      run: |
+        correctness=$(jq -r '.implementationCorrectness' review_output.json)
+        readability=$(jq -r '.readabilityAndCleanCode' review_output.json)
+        complexity=$(jq -r '.complexity' review_output.json)
+        performance=$(jq -r '.performanceAndResourceEfficiency' review_output.json)
+        security=$(jq -r '.securitySafety' review_output.json)
+        idiomaticity=$(jq -r '.idiomaticity' review_output.json)
+        verdict=$(jq -r '.verdict' review_output.json)
+        summary=$(jq -r '.summary' review_output.json)
+
+        if [ "$verdict" = "pass" ]; then
+          verdict_emoji="✅ **PASS**"
+        else
+          verdict_emoji="❌ **FAIL**"
+        fi
+
+        cat << EOF > comment.md
+        # 🤖 AI Pull Request Code Review
+
+        | Kategoria | Ocena |
+        | :--- | :---: |
+        | **Poprawność implementacji** | $correctness / 10 |
+        | **Czytelność i czystość kodu** | $readability / 10 |
+        | **Złożoność** | $complexity / 10 |
+        | **Wydajność i zasoby** | $performance / 10 |
+        | **Bezpieczeństwo** | $security / 10 |
+        | **Idiomatyczność** | $idiomaticity / 10 |
+
+        ### Werdykt: $verdict_emoji
+
+        ---
+
+        ## Podsumowanie
+        $summary
+        EOF
+
+        echo "VERDICT=$verdict" >> $GITHUB_ENV
+
+    - name: Post PR comment
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        echo "[INFO] Publikowanie komentarza w PR..."
+        gh pr comment ${{ inputs.pr-number }} --body-file comment.md
+
+    - name: Update PR labels
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        echo "[INFO] Zarządzanie etykietami PR..."
+        # Create labels if they don't exist
+        gh label create "ai-cr:passed" --color "228B22" --description "AI Code Review Passed" || true
+        gh label create "ai-cr:failed" --color "B22222" --description "AI Code Review Failed" || true
+
+        # Update PR labels based on verdict
+        if [ "$VERDICT" = "pass" ]; then
+          echo "[INFO] Werdykt PASS: przypisywanie 'ai-cr:passed' i czyszczenie 'ai-cr:failed' oraz 'ai-cr:review'"
+          gh pr edit ${{ inputs.pr-number }} --add-label "ai-cr:passed" --remove-label "ai-cr:failed,ai-cr:review" || true
+        else
+          echo "[INFO] Werdykt FAIL: przypisywanie 'ai-cr:failed' i czyszczenie 'ai-cr:passed' oraz 'ai-cr:review'"
+          gh pr edit ${{ inputs.pr-number }} --add-label "ai-cr:failed" --remove-label "ai-cr:passed,ai-cr:review" || true
+        fi
