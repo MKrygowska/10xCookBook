@@ -231,12 +231,12 @@ Write the React migration buggy diff, configure the `promptfooconfig.yaml` with 
 ### Phase 2: Setup Promptfoo and Custom Provider
 
 #### Automated
-- [x] 2.1 Install promptfoo devDependency
-- [x] 2.2 Create custom TypeScript promptfoo provider script
+- [x] 2.1 Install promptfoo devDependency — 07593cb
+- [x] 2.2 Create custom TypeScript promptfoo provider script — 07593cb
 
 ### Phase 3: Create React Diff Fixture & Configure Suite
 
 #### Automated
-- [ ] 3.1 Create React migration flawed diff file fixture
-- [ ] 3.2 Create promptfooconfig.yaml configuration file
-- [ ] 3.3 Execute promptfoo eval run successfully
+- [x] 3.1 Create React migration flawed diff file fixture — d684adf
+- [x] 3.2 Create promptfooconfig.yaml configuration file — d684adf
+- [x] 3.3 Execute promptfoo eval run successfully — d684adf
