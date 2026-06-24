@@ -1,10 +1,10 @@
 ---
 change_id: ci-cd-code-review
 title: Introduce first CI/CD workflow for PR code reviews
-status: impl_reviewed
+status: archived
 created: 2026-06-24
 updated: 2026-06-24
-archived_at: null
+archived_at: 2026-06-24T16:26:00Z
 ---
 
 ## Notes
