@@ -222,11 +222,11 @@ Write the React migration buggy diff, configure the `promptfooconfig.yaml` with 
 ### Phase 1: Refactor Code Reviewer for Importability
 
 #### Automated
-- [ ] 1.1 Extract core agent logic to review-agent.ts and compile check passes
-- [ ] 1.2 Refactor review-gemini.ts to use imported review function and verify dry run
+- [x] 1.1 Extract core agent logic to review-agent.ts and compile check passes
+- [x] 1.2 Refactor review-gemini.ts to use imported review function and verify dry run
 
 #### Manual
-- [ ] 1.3 Verify CLI metadata logs (stderr) and JSON verdict (stdout) are preserved
+- [x] 1.3 Verify CLI metadata logs (stderr) and JSON verdict (stdout) are preserved
 
 ### Phase 2: Setup Promptfoo and Custom Provider
 
