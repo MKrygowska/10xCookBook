@@ -2,24 +2,25 @@
 
 ## Overview
 
-We will introduce LLM prompt/agent evaluation by setting up `promptfoo` and configuring it to test our code reviewer agent across three different models (`gemini-3.1-flash-lite`, `z-ai/glm-5.1`, and `deepseek/deepseek-v4-flash`). 
+We will introduce LLM prompt/agent evaluation by setting up `promptfoo` and configuring it to test our code reviewer agent across three different models from Google Gemini (`gemini-3.1-flash-lite`, `gemini-1.5-pro`, and `gemini-1.5-flash`) directly, utilizing the existing `GEMINI_API_KEY` without requiring any other credentials or external gateways.
 
 To make this possible, we will refactor the code reviewer script to separate the core agent logic (which will be clean and importable) from the CLI runner. We will then configure promptfoo with a custom TypeScript provider, a realistic React 16 to 19+ migration diff containing three severe architectural and lifecycle flaws, and assertions (both LLM-as-a-judge and static assertions) to verify the reviewer's performance.
 
 ## Current State Analysis
 
 - **Self-Executing Script**: Currently, [review-gemini.ts](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/review-gemini.ts) has immediate side-effects at the bottom of the file (reading from `process.stdin` and calling the review). This prevents importing its constants (`SYSTEM_PROMPT`, `REVIEW_JSON_SCHEMA`) or functions (`review`) into any test harness.
-- **Single Model Lock**: The script is hardcoded to call `gemini-3.1-flash-lite` via the `@google/genai` SDK. There is no mechanism to pass in a different model or target other providers (like OpenRouter).
+- **Single Model Lock**: The script is hardcoded to call `gemini-3.1-flash-lite` via the `@google/genai` SDK. There is no mechanism to pass in a different model.
 - **No Evaluation Suite**: We currently have no automated way to evaluate prompt quality, model regressions, or structured output format guarantees across different LLMs.
 
 ## Desired End State
 
 - **Importable Agent**: The core agent logic resides in [review-agent.ts](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/review-agent.ts) with zero side-effects and is fully importable.
+- **Model Parameterization**: The `review()` function supports a `model` parameter, allowing us to pass the target Gemini model name dynamically.
 - **Thin CLI Runner**: The GHA workflow still calls [review-gemini.ts](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/review-gemini.ts), which acts as a thin wrapper importing and executing the agent.
 - **Promptfoo Integration**:
   - `promptfoo` is installed and runnable via `npx promptfoo eval`.
   - A custom provider [promptfoo-provider.ts](file:///c:/Users/reade/Documents/10xDev%20Project/scripts/promptfoo-provider.ts) routes promptfoo test cases to our agent.
-  - Evaluation covers three models: `gemini-3.1-flash-lite` (local SDK), `z-ai/glm-5.1` (OpenRouter), and `deepseek/deepseek-v4-flash` (OpenRouter).
+  - Evaluation covers three Google Gemini models: `gemini-3.1-flash-lite`, `gemini-1.5-pro`, and `gemini-1.5-flash` using `GEMINI_API_KEY` (or `GOOGLE_API_KEY`).
   - A test suite evaluates the agent against a React migration diff fixture with specific assertions.
 
 ### Key Discoveries:
@@ -29,14 +30,15 @@ To make this possible, we will refactor the code reviewer script to separate the
 ## What We're NOT Doing
 - We are not deploying the promptfoo web viewer online (it will run locally).
 - We are not changing the production behavior or prompt text of the code reviewer (only restructuring the files).
+- We are not using OpenRouter or Anthropic Claude API keys (the user chose to bypass them for simplicity and cost).
 
 ## Implementation Approach
 
-1.  **Refactor**: Split `review-gemini.ts` into `review-agent.ts` (exporting the `review` function and schema) and `review-gemini.ts` (the runner). We will extend the `review()` signature to support an optional `model` override and call OpenRouter if an OpenRouter model is targeted.
+1.  **Refactor**: Split `review-gemini.ts` into `review-agent.ts` (exporting the `review` function and schema) and `review-gemini.ts` (the runner). We will extend the `review()` signature to support an optional `model` override passed to `@google/genai` (defaulting to `gemini-3.1-flash-lite`).
 2.  **Dependencies**: Install `promptfoo` as a `devDependency` in `package.json`.
 3.  **Harness**: Implement the promptfoo custom provider in TypeScript, loading variables from the test case.
 4.  **Fixtures**: Write the React 16 to 19 migration diff containing `componentWillMount`, direct DOM manipulation `document.getElementById`, and fetch call in render.
-5.  **Config**: Create `promptfooconfig.yaml` with the test cases, assertions (LLM-as-a-judge using `gemini-3.1-flash-lite`, and JSON validation), and the three model definitions.
+5.  **Config**: Create `promptfooconfig.yaml` with the test cases, assertions (LLM-as-a-judge using `gemini-3.1-flash-lite`, and JSON validation), and the three Gemini model configurations.
 
 ---
 
@@ -55,7 +57,7 @@ Extract the core agent logic and constants into a clean module, leaving the CLI 
 **Contract**:
 - Export `SYSTEM_PROMPT`, `REVIEW_JSON_SCHEMA`, `Review` interface.
 - Export `review(diff: string, options?: { model?: string })` returning `Promise<Review>`.
-- If `options.model` starts with `openrouter/` or we specify an OpenRouter model, perform a `fetch` post request to `https://openrouter.ai/api/v1/chat/completions` using the `OPENROUTER_API_KEY`. Otherwise, fall back to `@google/genai` using the `GEMINI_API_KEY`.
+- Use the `@google/genai` SDK and call the model specified by `options.model` (defaulting to `gemini-3.1-flash-lite`) using the environment key `GEMINI_API_KEY` (or `GOOGLE_API_KEY`).
 
 #### 2. Refactor review-gemini.ts [MODIFY]
 **File**: `scripts/review-gemini.ts`
@@ -165,11 +167,11 @@ Write the React migration buggy diff, configure the `promptfooconfig.yaml` with 
 **Intent**: Define the promptfoo evaluation configuration.
 
 **Contract**:
-- `prompts`: Reference our `SYSTEM_PROMPT` in `scripts/review-agent.ts` or a plain file.
+- `prompts`: Reference our `SYSTEM_PROMPT` in `scripts/review-agent.ts` or a plain text description.
 - `providers`:
   - `file://scripts/promptfoo-provider.ts` configured with `model: gemini-3.1-flash-lite`.
-  - `file://scripts/promptfoo-provider.ts` configured with `model: z-ai/glm-5.1`.
-  - `file://scripts/promptfoo-provider.ts` configured with `model: deepseek/deepseek-v4-flash`.
+  - `file://scripts/promptfoo-provider.ts` configured with `model: gemini-1.5-pro`.
+  - `file://scripts/promptfoo-provider.ts` configured with `model: gemini-1.5-flash`.
 - `tests`:
   - Refer to the React migration diff file fixture `file://scripts/tests/fixtures/react-migration.diff` as the `diff` variable.
   - Assertions:
@@ -202,12 +204,12 @@ Write the React migration buggy diff, configure the `promptfooconfig.yaml` with 
   - Correctness of the `fail` verdict.
 
 ### Manual Testing Steps:
-1.  Set `GEMINI_API_KEY` and `OPENROUTER_API_KEY`.
+1.  Set `GEMINI_API_KEY` (or `GOOGLE_API_KEY`).
 2.  Run `npx promptfoo eval` to perform the matrix tests.
 3.  Inspect the local dashboard to check performance and judge remarks.
 
 ## Performance Considerations
-- OpenRouter API rate limits may apply on free-tier keys. Promptfoo handles retries and token counts automatically.
+- Rate limits may apply on free-tier keys. Promptfoo handles retries and token counts automatically.
 
 ## References
 - Code Review Script: `scripts/review-gemini.ts`
