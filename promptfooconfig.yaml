@@ -41,3 +41,32 @@ tests:
       - type: llm-rubric
         value: "The output summary correctly identifies that: 1) componentWillMount is a deprecated lifecycle method, 2) document.getElementById is direct DOM manipulation, and 3) the fetch API call is inside the render method."
         provider: google:gemini-3.1-flash-lite
+
+  - vars:
+      diff: file://scripts/tests/fixtures/current.diff
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const data = JSON.parse(output);
+            const required = [
+              "implementationCorrectness",
+              "readabilityAndCleanCode",
+              "complexity",
+              "performanceAndResourceEfficiency",
+              "securitySafety",
+              "idiomaticity",
+              "verdict",
+              "summary"
+            ];
+            for (const k of required) {
+              if (data[k] === undefined) return false;
+            }
+            return data.verdict === 'fail';
+          } catch(e) {
+            return false;
+          }
+      - type: llm-rubric
+        value: "The output summary correctly identifies that: 1) request input validation null checking in MatchRecipes is skipped (causing potential NullReferenceException), and 2) the ownership security authorization check in DeleteRecipeAsync is commented out (IDOR / BOLA vulnerability)."
+        provider: google:gemini-3.1-flash-lite
+
