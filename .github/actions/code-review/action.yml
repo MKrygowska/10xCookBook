@@ -64,25 +64,21 @@ runs:
           verdict_emoji="❌ **FAIL**"
         fi
 
-        cat << 'EOF' > comment.md
-# 🤖 AI Pull Request Code Review
-
-| Kategoria | Ocena |
-| :--- | :---: |
-| **Poprawność implementacji** | $correctness / 10 |
-| **Czytelność i czystość kodu** | $readability / 10 |
-| **Złożoność** | $complexity / 10 |
-| **Wydajność i zasoby** | $performance / 10 |
-| **Bezpieczeństwo** | $security / 10 |
-| **Idiomatyczność** | $idiomaticity / 10 |
-
-### Werdykt: $verdict_emoji
-
----
-
-## Podsumowanie
-$summary
-EOF
+        {
+          printf "# 🤖 AI Pull Request Code Review\n\n"
+          printf "| Kategoria | Ocena |\n"
+          printf "| :--- | :---: |\n"
+          printf "| **Poprawność implementacji** | %s / 10 |\n" "$correctness"
+          printf "| **Czytelność i czystość kodu** | %s / 10 |\n" "$readability"
+          printf "| **Złożoność** | %s / 10 |\n" "$complexity"
+          printf "| **Wydajność i zasoby** | %s / 10 |\n" "$performance"
+          printf "| **Bezpieczeństwo** | %s / 10 |\n" "$security"
+          printf "| **Idiomatyczność** | %s / 10 |\n" "$idiomaticity"
+          printf "\n### Werdykt: %s\n\n" "$verdict_emoji"
+          printf "---\n\n"
+          printf "## Podsumowanie\n"
+          printf "%s\n" "$summary"
+        } > comment.md
 
         echo "VERDICT=$verdict" >> $GITHUB_ENV
 
