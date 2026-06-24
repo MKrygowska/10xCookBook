@@ -1,0 +1,49 @@
+diff --git a/frontend/src/app/components/RecipeList.tsx b/frontend/src/app/components/RecipeList.tsx
+index d7a52e1..b3c9f28 100644
+--- a/frontend/src/app/components/RecipeList.tsx
++++ b/frontend/src/app/components/RecipeList.tsx
+@@ -1,33 +1,38 @@
+-import React, { Component } from 'react';
++import React from 'react';
+ 
+-export default class RecipeList extends Component {
+-  componentWillMount() {
+-    console.log('Initializing recipe list legacy lifecycle');
+-  }
+-
+-  render() {
+-    return (
+-      <div>
+-        <h2>Recipes</h2>
+-      </div>
+-    );
+-  }
+-}
++export default class RecipeList extends React.Component {
++  // FLAW 1: Deprecated React 16 lifecycle method componentWillMount in React 19 migration
++  componentWillMount() {
++    console.log('Initializing recipe list');
++  }
++
++  componentDidMount() {
++    // FLAW 2: Direct DOM manipulation instead of using React state or refs
++    const header = document.getElementById('recipe-header');
++    if (header) {
++      header.style.color = 'red';
++    }
++  }
++
++  render() {
++    // FLAW 3: Side-effect (fetch API call) inside the render method
++    fetch('/api/recipes')
++      .then(res => res.json())
++      .then(data => console.log(data));
++
++    return (
++      <div>
++        <h2 id="recipe-header">Recipes</h2>
++        <p>List of recipes goes here...</p>
++      </div>
++    );
++  }
++}
