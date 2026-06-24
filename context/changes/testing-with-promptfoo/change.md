@@ -1,7 +1,7 @@
 ---
 change_id: testing-with-promptfoo
 title: Testing with promptfoo
-status: preparing
+status: planned
 created: 2026-06-24
 updated: 2026-06-24
 archived_at: null
