@@ -75,7 +75,7 @@ runs:
           printf "| **Bezpieczeństwo** | %s / 10 |\n" "$security"
           printf "| **Idiomatyczność** | %s / 10 |\n" "$idiomaticity"
           printf "\n### Werdykt: %s\n\n" "$verdict_emoji"
-          printf "---\n\n"
+          printf -- "---\n\n"
           printf "## Podsumowanie\n"
           printf "%s\n" "$summary"
         } > comment.md
