@@ -147,26 +147,26 @@ Create the main workflow file in `.github/workflows/` that triggers on PR events
 ### Phase 1: Script Updates & Local Testing
 
 #### Automated
-- [x] 1.1 Code builds cleanly: compile check passes
+- [x] 1.1 Code builds cleanly: compile check passes — c6b83c3
 
 #### Manual
-- [x] 1.2 Verify local dry run outputs the 6 updated schema fields
-- [x] 1.3 Verify environment variables PR_TITLE and PR_DESCRIPTION are accepted
+- [x] 1.2 Verify local dry run outputs the 6 updated schema fields — c6b83c3
+- [x] 1.3 Verify environment variables PR_TITLE and PR_DESCRIPTION are accepted — c6b83c3
 
 ### Phase 2: Composite Action Setup
 
 #### Automated
-- [ ] 2.1 Composite action file exists and conforms to YAML syntax
+- [x] 2.1 Composite action file exists and conforms to YAML syntax — 425a60d
 
 #### Manual
-- [ ] 2.2 Verify action CLI calls for diffing, labeling, and commenting
+- [x] 2.2 Verify action CLI calls for diffing, labeling, and commenting — 425a60d
 
 ### Phase 3: Main Workflow Integration
 
 #### Automated
-- [ ] 3.1 Main workflow file exists and GHA syntax is correct
+- [x] 3.1 Main workflow file exists and GHA syntax is correct — 1c7b9d4
 
 #### Manual
-- [ ] 3.2 Verify automatic trigger on opening or updating PR
-- [ ] 3.3 Verify comment is successfully posted on PR
-- [ ] 3.4 Verify labels are added/removed and ai-cr:review label is cleaned up
+- [x] 3.2 Verify automatic trigger on opening or updating PR — 7ff71d3
+- [x] 3.3 Verify comment is successfully posted on PR — 7ff71d3
+- [x] 3.4 Verify labels are added/removed and ai-cr:review label is cleaned up — 7ff71d3
