@@ -1,0 +1,40 @@
+name: "Pull Request AI Code Review"
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'context/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+
+jobs:
+  code-review:
+    name: "Run Code Review"
+    runs-on: ubuntu-latest
+    if: |
+      github.event_action != 'labeled' || 
+      github.event.label.name == 'ai-cr:review'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Execute AI Code Review
+        uses: ./.github/actions/code-review
+        with:
+          pr-number: ${{ github.event.pull_request.number }}
+          pr-title: ${{ github.event.pull_request.title }}
+          pr-description: ${{ github.event.pull_request.body }}
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
