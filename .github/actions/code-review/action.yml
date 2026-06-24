@@ -64,25 +64,25 @@ runs:
           verdict_emoji="❌ **FAIL**"
         fi
 
-        cat << EOF > comment.md
-        # 🤖 AI Pull Request Code Review
+        cat << 'EOF' > comment.md
+# 🤖 AI Pull Request Code Review
 
-        | Kategoria | Ocena |
-        | :--- | :---: |
-        | **Poprawność implementacji** | $correctness / 10 |
-        | **Czytelność i czystość kodu** | $readability / 10 |
-        | **Złożoność** | $complexity / 10 |
-        | **Wydajność i zasoby** | $performance / 10 |
-        | **Bezpieczeństwo** | $security / 10 |
-        | **Idiomatyczność** | $idiomaticity / 10 |
+| Kategoria | Ocena |
+| :--- | :---: |
+| **Poprawność implementacji** | $correctness / 10 |
+| **Czytelność i czystość kodu** | $readability / 10 |
+| **Złożoność** | $complexity / 10 |
+| **Wydajność i zasoby** | $performance / 10 |
+| **Bezpieczeństwo** | $security / 10 |
+| **Idiomatyczność** | $idiomaticity / 10 |
 
-        ### Werdykt: $verdict_emoji
+### Werdykt: $verdict_emoji
 
-        ---
+---
 
-        ## Podsumowanie
-        $summary
-        EOF
+## Podsumowanie
+$summary
+EOF
 
         echo "VERDICT=$verdict" >> $GITHUB_ENV
 
@@ -107,8 +107,12 @@ runs:
         # Update PR labels based on verdict
         if [ "$VERDICT" = "pass" ]; then
           echo "[INFO] Werdykt PASS: przypisywanie 'ai-cr:passed' i czyszczenie 'ai-cr:failed' oraz 'ai-cr:review'"
-          gh pr edit ${{ inputs.pr-number }} --add-label "ai-cr:passed" --remove-label "ai-cr:failed,ai-cr:review" || true
+          gh pr edit ${{ inputs.pr-number }} --add-label "ai-cr:passed" || true
+          gh pr edit ${{ inputs.pr-number }} --remove-label "ai-cr:failed" || true
+          gh pr edit ${{ inputs.pr-number }} --remove-label "ai-cr:review" || true
         else
           echo "[INFO] Werdykt FAIL: przypisywanie 'ai-cr:failed' i czyszczenie 'ai-cr:passed' oraz 'ai-cr:review'"
-          gh pr edit ${{ inputs.pr-number }} --add-label "ai-cr:failed" --remove-label "ai-cr:passed,ai-cr:review" || true
+          gh pr edit ${{ inputs.pr-number }} --add-label "ai-cr:failed" || true
+          gh pr edit ${{ inputs.pr-number }} --remove-label "ai-cr:passed" || true
+          gh pr edit ${{ inputs.pr-number }} --remove-label "ai-cr:review" || true
         fi

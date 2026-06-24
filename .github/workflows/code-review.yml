@@ -25,7 +25,7 @@ jobs:
     name: "Run Code Review"
     runs-on: ubuntu-latest
     if: |
-      github.event_action != 'labeled' || 
+      github.event.action != 'labeled' || 
       github.event.label.name == 'ai-cr:review'
     steps:
       - name: Checkout repository
